@@ -1,0 +1,229 @@
+/* 基礎樣式重置 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
+}
+
+/* App 容器 */
+.App {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* 卡片懸停效果增強 */
+.ant-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* 移除選擇典籍卡片的懸停效果 */
+.scripture-selector-card:hover {
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* 移除標題卡片的懸停效果 */
+.no-hover-effect:hover {
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* 選擇器增強樣式 */
+.ant-select-selector {
+  border-radius: 8px !important;
+  border: 2px solid #d9d9d9 !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: #722ed1 !important;
+  box-shadow: 0 0 0 2px rgba(114, 46, 209, 0.1) !important;
+}
+
+/* 折疊面板樣式 */
+.ant-collapse {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ant-collapse-item {
+  border-radius: 8px !important;
+  margin-bottom: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ant-collapse-header {
+  background: linear-gradient(90deg, #722ed1 0%, #9254de 100%) !important;
+  color: white !important;
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 600;
+  padding: 16px 20px !important;
+}
+
+.ant-collapse-header:hover {
+  background: linear-gradient(90deg, #9254de 0%, #722ed1 100%) !important;
+}
+
+.ant-collapse-content {
+  border-radius: 0 0 8px 8px;
+  background-color: #ffffff;
+}
+
+.ant-collapse-content-box {
+  padding: 20px !important;
+}
+
+/* YouTube 影片容器響應式 */
+.youtube-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 比例 */
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.youtube-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 章節卡片特殊樣式 */
+.chapter-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e8e8e8;
+  cursor: pointer;
+}
+
+.chapter-card:hover {
+  border-color: #722ed1;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(114, 46, 209, 0.15);
+}
+
+/* 內容區域樣式 */
+.content-section {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #722ed1;
+}
+
+.outline-section {
+  background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+  border-left: 4px solid #52c41a;
+}
+
+.transcript-section {
+  background: linear-gradient(135deg, #fff9f0 0%, #ffeaa7 20%);
+  border-left: 4px solid #fa8c16;
+  font-family: 'Times New Roman', serif;
+  line-height: 2;
+  letter-spacing: 0.5px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .ant-col {
+    padding: 0 8px !important;
+  }
+  
+  .content-section {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .ant-collapse-header {
+    padding: 12px 16px !important;
+    font-size: 14px;
+  }
+  
+  .ant-collapse-content-box {
+    padding: 16px !important;
+  }
+}
+
+/* 漸變背景動畫 */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-background {
+  background: linear-gradient(-45deg, #722ed1, #9254de, #13c2c2, #52c41a);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* 佛法主題色彩調整 */
+.ant-card-head {
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  border-bottom: 2px solid #722ed1;
+}
+
+.ant-card-head-title {
+  color: #722ed1;
+  font-weight: 600;
+}
+
+/* 滾動條樣式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #722ed1, #9254de);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #9254de, #722ed1);
+}
+
+/* 搜尋結果高亮樣式 */
+mark {
+  background-color: #fffb8f;
+  color: #722ed1;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(114, 46, 209, 0.2);
+}
+
+/* 問答集和搜尋按鈕樣式 */
+.function-button {
+  background: linear-gradient(135deg, #722ed1 0%, #9254de 100%);
+  border: none;
+  box-shadow: 0 4px 15px rgba(114, 46, 209, 0.3);
+  transition: all 0.3s ease;
+}
+
+.function-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(114, 46, 209, 0.4);
+  background: linear-gradient(135deg, #9254de 0%, #722ed1 100%);
+}
