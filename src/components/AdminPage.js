@@ -8,22 +8,52 @@ import {
   Row, 
   Col, 
   Alert,
-  Divider 
+  Divider,
+  Upload,
+  Space,
+  message 
 } from 'antd';
 import { 
   ArrowLeftOutlined,
   BookOutlined, 
   QuestionCircleOutlined,
   DatabaseOutlined,
-  SettingOutlined
+  SettingOutlined,
+  DownloadOutlined,
+  UploadOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import ScriptureManager from './admin/ScriptureManager';
 import QAManager from './admin/QAManager';
+import { exportAllData, importAllData, generateSampleJSON } from '../utils/dataExportImport';
 
 const { Title, Paragraph } = Typography;
 
 const AdminPage = ({ onBackToHome, isUsingExampleData, onDataModeToggle }) => {
   const [activeTab, setActiveTab] = useState('scriptures');
+
+  // 處理資料匯出
+  const handleExport = () => {
+    exportAllData();
+  };
+
+  // 處理資料匯入
+  const handleImport = async (file) => {
+    const result = await importAllData(file);
+    if (result.success) {
+      message.success(result.message);
+      // 重新整理頁面以反映新資料
+      window.location.reload();
+    } else {
+      message.error(result.message);
+    }
+    return false; // 阻止Upload組件的默認上傳行為
+  };
+
+  // 生成範例檔案
+  const handleGenerateSample = () => {
+    generateSampleJSON();
+  };
 
   const tabItems = [
     {
@@ -110,6 +140,93 @@ const AdminPage = ({ onBackToHome, isUsingExampleData, onDataModeToggle }) => {
           </Card>
         </Col>
 
+        {/* JSON 資料管理 */}
+        <Col span={24}>
+          <Card className="no-hover-effect" style={{ backgroundColor: '#fff7e6', border: '1px solid #ffd591' }}>
+            <Title level={5} style={{ margin: '0 0 12px 0', color: '#d46b08' }}>
+              <FileTextOutlined style={{ marginRight: '8px' }} />
+              JSON 資料管理
+            </Title>
+            <Paragraph style={{ margin: '0 0 16px 0', color: '#fa8c16' }}>
+              匯出資料為JSON檔案進行永久保存，或匯入之前備份的JSON檔案
+            </Paragraph>
+            
+            <Row gutter={16}>
+              <Col xs={24} sm={8}>
+                <Button 
+                  type="primary"
+                  icon={<DownloadOutlined />}
+                  onClick={handleExport}
+                  block
+                  disabled={isUsingExampleData}
+                  style={{ marginBottom: '8px' }}
+                >
+                  匯出資料
+                </Button>
+                {isUsingExampleData && (
+                  <div style={{ fontSize: '11px', color: '#999', textAlign: 'center' }}>
+                    範例模式無法匯出
+                  </div>
+                )}
+              </Col>
+              
+              <Col xs={24} sm={8}>
+                <Upload
+                  accept=".json"
+                  beforeUpload={handleImport}
+                  showUploadList={false}
+                  disabled={isUsingExampleData}
+                >
+                  <Button 
+                    icon={<UploadOutlined />}
+                    block
+                    disabled={isUsingExampleData}
+                    style={{ marginBottom: '8px' }}
+                  >
+                    匯入資料
+                  </Button>
+                </Upload>
+                {isUsingExampleData && (
+                  <div style={{ fontSize: '11px', color: '#999', textAlign: 'center' }}>
+                    範例模式無法匯入
+                  </div>
+                )}
+              </Col>
+              
+              <Col xs={24} sm={8}>
+                <Button 
+                  icon={<FileTextOutlined />}
+                  onClick={handleGenerateSample}
+                  block
+                  style={{ marginBottom: '8px' }}
+                >
+                  下載範例檔案
+                </Button>
+                <div style={{ fontSize: '11px', color: '#999', textAlign: 'center' }}>
+                  查看JSON格式
+                </div>
+              </Col>
+            </Row>
+            
+            <Divider style={{ margin: '16px 0' }} />
+            
+            <Alert
+              message="重要提醒"
+              description={
+                <ul style={{ margin: '8px 0 0 0', paddingLeft: '16px' }}>
+                  <li>匯出的JSON檔案可在任何電腦上使用</li>
+                  <li>定期備份資料可防止意外遺失</li>
+                  <li>匯入新資料會覆蓋現有的管理員資料</li>
+                  <li>建議在匯入前先匯出當前資料做備份</li>
+                </ul>
+              }
+              type="warning"
+              showIcon
+              style={{ fontSize: '12px' }}
+            />
+          </Card>
+        </Col>
+
         {/* 管理功能選項卡 */}
         <Col span={24}>
           <Card className="no-hover-effect">
@@ -130,7 +247,7 @@ const AdminPage = ({ onBackToHome, isUsingExampleData, onDataModeToggle }) => {
               使用說明
             </Title>
             <Row gutter={16}>
-              <Col xs={24} md={12}>
+              <Col xs={24} md={8}>
                 <Paragraph style={{ margin: 0, color: '#1677ff' }}>
                   <strong>典籍管理：</strong><br/>
                   • 新增、編輯、刪除佛法典籍<br/>
@@ -139,7 +256,7 @@ const AdminPage = ({ onBackToHome, isUsingExampleData, onDataModeToggle }) => {
                   • 編輯經文、綱要、重點說明
                 </Paragraph>
               </Col>
-              <Col xs={24} md={12}>
+              <Col xs={24} md={8}>
                 <Paragraph style={{ margin: 0, color: '#1677ff' }}>
                   <strong>問答管理：</strong><br/>
                   • 新增、編輯佛法相關問答<br/>
@@ -148,10 +265,19 @@ const AdminPage = ({ onBackToHome, isUsingExampleData, onDataModeToggle }) => {
                   • 支援搜尋和篩選功能
                 </Paragraph>
               </Col>
+              <Col xs={24} md={8}>
+                <Paragraph style={{ margin: 0, color: '#1677ff' }}>
+                  <strong>JSON檔案管理：</strong><br/>
+                  • 匯出資料為JSON檔案<br/>
+                  • 匯入之前備份的資料<br/>
+                  • 跨裝置資料同步<br/>
+                  • 永久保存和備份資料
+                </Paragraph>
+              </Col>
             </Row>
             <Divider style={{ margin: '16px 0' }} />
             <Paragraph style={{ margin: 0, color: '#1677ff', fontSize: '12px' }}>
-              💡 提示：修改後的內容會立即生效，建議先在範例模式下熟悉操作流程
+              💡 提示：定期匯出JSON檔案可確保資料永久保存，建議先在範例模式下熟悉操作流程
             </Paragraph>
           </Card>
         </Col>

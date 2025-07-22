@@ -6,7 +6,6 @@ import {
   Modal,
   Form,
   Input,
-  Select,
   Typography,
   Row,
   Col,
@@ -23,6 +22,7 @@ import {
   BookOutlined,
   FileTextOutlined
 } from '@ant-design/icons';
+import ChapterManager from './ChapterManager';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -32,6 +32,8 @@ const ScriptureManager = ({ isUsingExampleData }) => {
   const [scriptures, setScriptures] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingScripture, setEditingScripture] = useState(null);
+  const [showChapterModal, setShowChapterModal] = useState(false);
+  const [selectedScripture, setSelectedScripture] = useState(null);
   const [form] = Form.useForm();
 
   // 模擬資料載入
@@ -134,6 +136,25 @@ const ScriptureManager = ({ isUsingExampleData }) => {
     message.success('典籍刪除成功！');
   };
 
+  const showChapterManager = (scripture) => {
+    setSelectedScripture(scripture);
+    setShowChapterModal(true);
+  };
+
+  const handleChapterModalClose = () => {
+    setShowChapterModal(false);
+    setSelectedScripture(null);
+    // 重新載入資料以反映變更
+    const savedData = localStorage.getItem('adminScriptures');
+    if (savedData) {
+      try {
+        setScriptures(JSON.parse(savedData));
+      } catch (error) {
+        console.error('重新載入資料失敗:', error);
+      }
+    }
+  };
+
   return (
     <div>
       <Row gutter={[16, 16]}>
@@ -209,29 +230,53 @@ const ScriptureManager = ({ isUsingExampleData }) => {
                       章節 ({scripture.chapters?.length || 0})
                     </Title>
                     {scripture.chapters?.length > 0 ? (
-                      <Collapse size="small" ghost>
-                        <Panel 
-                          header={`查看 ${scripture.chapters.length} 個章節`} 
-                          key="chapters"
-                        >
-                          {scripture.chapters.map(chapter => (
-                            <div key={chapter.id} style={{ 
-                              padding: '4px 0', 
-                              borderBottom: '1px solid #f0f0f0',
-                              fontSize: '12px'
-                            }}>
-                              <Space>
-                                <FileTextOutlined style={{ color: '#52c41a' }} />
-                                {chapter.name}
-                              </Space>
-                            </div>
-                          ))}
-                        </Panel>
-                      </Collapse>
+                      <div>
+                        <Collapse size="small" ghost>
+                          <Panel 
+                            header={`查看 ${scripture.chapters.length} 個章節`} 
+                            key="chapters"
+                          >
+                            {scripture.chapters.map(chapter => (
+                              <div key={chapter.id} style={{ 
+                                padding: '4px 0', 
+                                borderBottom: '1px solid #f0f0f0',
+                                fontSize: '12px'
+                              }}>
+                                <Space>
+                                  <FileTextOutlined style={{ color: '#52c41a' }} />
+                                  {chapter.name}
+                                </Space>
+                              </div>
+                            ))}
+                          </Panel>
+                        </Collapse>
+                        {!isUsingExampleData && (
+                          <Button 
+                            type="link" 
+                            size="small"
+                            onClick={() => showChapterManager(scripture)}
+                            style={{ marginTop: '8px', padding: 0 }}
+                          >
+                            管理章節內容 →
+                          </Button>
+                        )}
+                      </div>
                     ) : (
-                      <Paragraph style={{ color: '#999', fontSize: '12px' }}>
-                        尚未新增章節
-                      </Paragraph>
+                      <div>
+                        <Paragraph style={{ color: '#999', fontSize: '12px' }}>
+                          尚未新增章節
+                        </Paragraph>
+                        {!isUsingExampleData && (
+                          <Button 
+                            type="link" 
+                            size="small"
+                            onClick={() => showChapterManager(scripture)}
+                            style={{ marginTop: '4px', padding: 0 }}
+                          >
+                            新增章節 →
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </Card>
@@ -276,6 +321,16 @@ const ScriptureManager = ({ isUsingExampleData }) => {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* 章節管理彈窗 */}
+      {selectedScripture && (
+        <ChapterManager
+          visible={showChapterModal}
+          onClose={handleChapterModalClose}
+          scripture={selectedScripture}
+          isUsingExampleData={isUsingExampleData}
+        />
+      )}
     </div>
   );
 };
