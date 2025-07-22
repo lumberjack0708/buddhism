@@ -1,11 +1,9 @@
-import { scripturesData } from './scriptures';
-import { qaData as qaOriginalData } from './qa';
-
-// 資料管理器
+// 資料管理器 - 統一使用 JSON 格式
 class DataManager {
   constructor() {
-    this.isUsingExampleData = true;
     this.listeners = [];
+    this.scripturesCache = null;
+    this.qaCache = null;
   }
 
   // 訂閱資料變化
@@ -18,77 +16,149 @@ class DataManager {
 
   // 通知所有訂閱者
   notify() {
-    this.listeners.forEach(callback => callback(this.isUsingExampleData));
+    this.listeners.forEach(callback => callback());
   }
 
-  // 切換資料模式
-  toggleDataMode() {
-    this.isUsingExampleData = !this.isUsingExampleData;
-    this.notify();
-    return this.isUsingExampleData;
+  // 載入預設資料
+  async loadDefaultData() {
+    try {
+      // 載入預設典籍資料
+      const scripturesResponse = await fetch('/data/default-scriptures.json');
+      const defaultScriptures = await scripturesResponse.json();
+      
+      // 載入預設問答資料
+      const qaResponse = await fetch('/data/default-qa.json');
+      const defaultQA = await qaResponse.json();
+
+      return {
+        scriptures: defaultScriptures,
+        qa: defaultQA
+      };
+    } catch (error) {
+      console.error('載入預設資料失敗:', error);
+      return {
+        scriptures: [],
+        qa: []
+      };
+    }
   }
 
-  // 設置資料模式
-  setDataMode(useExampleData) {
-    this.isUsingExampleData = useExampleData;
-    this.notify();
-  }
+  // 初始化資料（如果 localStorage 沒有資料則載入預設資料）
+  async initializeData() {
+    const savedScriptures = localStorage.getItem('adminScriptures');
+    const savedQA = localStorage.getItem('adminQA');
 
-  // 取得當前資料模式
-  getDataMode() {
-    return this.isUsingExampleData;
+    if (!savedScriptures || !savedQA) {
+      const defaultData = await this.loadDefaultData();
+      
+      if (!savedScriptures && defaultData.scriptures.length > 0) {
+        localStorage.setItem('adminScriptures', JSON.stringify(defaultData.scriptures));
+        this.scripturesCache = null; // 清除快取
+      }
+      
+      if (!savedQA && defaultData.qa.length > 0) {
+        localStorage.setItem('adminQA', JSON.stringify(defaultData.qa));
+        this.qaCache = null; // 清除快取
+      }
+      
+      this.notify();
+    }
   }
 
   // 取得典籍資料
   getScripturesData() {
-    if (this.isUsingExampleData) {
-      return scripturesData;
-    } else {
-      const savedData = localStorage.getItem('adminScriptures');
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          // 轉換格式以符合原始結構
-          const formattedData = {};
-          parsedData.forEach(scripture => {
-            formattedData[scripture.id] = {
-              id: scripture.id,
-              name: scripture.name,
-              description: scripture.description,
-              chapters: {}
-            };
-            
-            if (scripture.chapters && scripture.chapters.length > 0) {
-              scripture.chapters.forEach(chapter => {
-                formattedData[scripture.id].chapters[chapter.id] = chapter;
-              });
-            }
-          });
-          return formattedData;
-        } catch (error) {
-          console.error('解析管理員典籍資料失敗:', error);
-          return {};
-        }
+    if (this.scripturesCache) {
+      return this.scripturesCache;
+    }
+
+    const savedData = localStorage.getItem('adminScriptures');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        // 轉換為原有的物件格式以保持相容性
+        const formattedData = {};
+        parsedData.forEach(scripture => {
+          formattedData[scripture.id] = {
+            id: scripture.id,
+            name: scripture.name,
+            description: scripture.description,
+            chapters: {}
+          };
+          
+          if (scripture.chapters && scripture.chapters.length > 0) {
+            scripture.chapters.forEach(chapter => {
+              formattedData[scripture.id].chapters[chapter.id] = chapter;
+            });
+          }
+        });
+        
+        this.scripturesCache = formattedData;
+        return formattedData;
+      } catch (error) {
+        console.error('解析典籍資料失敗:', error);
+        return {};
       }
-      return {};
+    }
+    return {};
+  }
+
+  // 取得原始典籍陣列格式（供管理員使用）
+  getScripturesArray() {
+    const savedData = localStorage.getItem('adminScriptures');
+    if (savedData) {
+      try {
+        return JSON.parse(savedData);
+      } catch (error) {
+        console.error('解析典籍資料失敗:', error);
+        return [];
+      }
+    }
+    return [];
+  }
+
+  // 儲存典籍資料
+  saveScripturesData(scripturesArray) {
+    try {
+      localStorage.setItem('adminScriptures', JSON.stringify(scripturesArray));
+      this.scripturesCache = null; // 清除快取
+      this.notify();
+      return true;
+    } catch (error) {
+      console.error('儲存典籍資料失敗:', error);
+      return false;
     }
   }
 
   // 取得問答資料
   getQAData() {
-    if (this.isUsingExampleData) {
-      return qaOriginalData;
-    } else {
-      const savedData = localStorage.getItem('adminQA');
-      if (savedData) {
-        try {
-          return JSON.parse(savedData);
-        } catch (error) {
-          console.error('解析管理員問答資料失敗:', error);
-          return [];
-        }
+    if (this.qaCache) {
+      return this.qaCache;
+    }
+
+    const savedData = localStorage.getItem('adminQA');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        this.qaCache = parsedData;
+        return parsedData;
+      } catch (error) {
+        console.error('解析問答資料失敗:', error);
+        return [];
       }
-      return [];
+    }
+    return [];
+  }
+
+  // 儲存問答資料
+  saveQAData(qaArray) {
+    try {
+      localStorage.setItem('adminQA', JSON.stringify(qaArray));
+      this.qaCache = null; // 清除快取
+      this.notify();
+      return true;
+    } catch (error) {
+      console.error('儲存問答資料失敗:', error);
+      return false;
     }
   }
 
@@ -214,9 +284,31 @@ class DataManager {
       item.tags.some(tag => tag.toLowerCase().includes(lowerKeyword))
     );
   }
+
+  // 清除所有快取
+  clearCache() {
+    this.scripturesCache = null;
+    this.qaCache = null;
+  }
+
+  // 重設為預設資料
+  async resetToDefault() {
+    const defaultData = await this.loadDefaultData();
+    
+    localStorage.setItem('adminScriptures', JSON.stringify(defaultData.scriptures));
+    localStorage.setItem('adminQA', JSON.stringify(defaultData.qa));
+    
+    this.clearCache();
+    this.notify();
+    
+    return true;
+  }
 }
 
 // 創建單例
 const dataManager = new DataManager();
+
+// 初始化資料
+dataManager.initializeData();
 
 export default dataManager; 

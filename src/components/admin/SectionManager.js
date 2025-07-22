@@ -14,7 +14,6 @@ import {
   message,
   Divider,
   Tabs,
-  Table,
   Tag
 } from 'antd';
 import {
@@ -22,7 +21,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   BookOutlined,
-  VideoCameraOutlined,
   SettingOutlined,
   BulbOutlined
 } from '@ant-design/icons';
@@ -35,8 +33,7 @@ const SectionManager = ({
   visible, 
   onClose, 
   scripture,
-  chapter,
-  isUsingExampleData 
+  chapter
 }) => {
   const [sections, setSections] = useState([]);
   const [isSectionModalVisible, setIsSectionModalVisible] = useState(false);
@@ -248,7 +245,6 @@ const SectionManager = ({
                 type="primary" 
                 icon={<PlusOutlined />}
                 onClick={() => showSectionModal()}
-                disabled={isUsingExampleData}
               >
                 新增小節
               </Button>
@@ -276,7 +272,6 @@ const SectionManager = ({
                       </Space>
                     }
                     extra={
-                      !isUsingExampleData && (
                         <Space>
                           <Button
                             type="link"
@@ -296,7 +291,6 @@ const SectionManager = ({
                             />
                           </Popconfirm>
                         </Space>
-                      )
                     }
                     style={{ height: '100%' }}
                   >
@@ -353,17 +347,15 @@ const SectionManager = ({
                         </Paragraph>
                       )}
                       
-                      {!isUsingExampleData && (
-                        <Button 
-                          type="link" 
-                          size="small"
-                          icon={<SettingOutlined />}
-                          onClick={() => showThemeManager(section)}
-                          style={{ marginTop: '4px', padding: 0 }}
-                        >
-                          管理主題內容 →
-                        </Button>
-                      )}
+                      <Button 
+                        type="link" 
+                        size="small"
+                        icon={<SettingOutlined />}
+                        onClick={() => showThemeManager(section)}
+                        style={{ marginTop: '4px', padding: 0 }}
+                      >
+                        管理主題內容 →
+                      </Button>
                     </div>
                   </Card>
                 </List.Item>
@@ -601,7 +593,6 @@ const SectionManager = ({
           scripture={scripture}
           chapter={chapter}
           section={selectedSection}
-          isUsingExampleData={isUsingExampleData}
         />
       )}
     </>

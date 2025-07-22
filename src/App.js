@@ -19,16 +19,18 @@ function App() {
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
   const [chapterData, setChapterData] = useState(null);
-  const [isUsingExampleData, setIsUsingExampleData] = useState(true);
 
   // 訂閱資料管理器的變化
   useEffect(() => {
-    setIsUsingExampleData(dataManager.getDataMode());
-    const unsubscribe = dataManager.subscribe((newMode) => {
-      setIsUsingExampleData(newMode);
+    const unsubscribe = dataManager.subscribe(() => {
+      // 資料變化時重新載入當前章節（如果有的話）
+      if (selectedScripture && selectedChapter) {
+        const chapterContent = dataManager.getChapterContent(selectedScripture, selectedChapter);
+        setChapterData(chapterContent);
+      }
     });
     return unsubscribe;
-  }, []);
+  }, [selectedScripture, selectedChapter]);
 
   const handleChapterSelect = (scriptureId, chapterId) => {
     const chapterContent = dataManager.getChapterContent(scriptureId, chapterId);
@@ -70,17 +72,6 @@ function App() {
 
   const handleAdminSelect = () => {
     setCurrentView('admin');
-  };
-
-  const handleDataModeToggle = () => {
-    const newMode = dataManager.toggleDataMode();
-    setIsUsingExampleData(newMode);
-    // 重置選擇狀態
-    setSelectedScripture(null);
-    setSelectedChapter(null);
-    setSelectedSection(null);
-    setChapterData(null);
-    setCurrentView('home');
   };
 
   return (
@@ -129,8 +120,6 @@ function App() {
           ) : currentView === 'admin' ? (
             <AdminPage
               onBackToHome={handleBackToHome}
-              isUsingExampleData={isUsingExampleData}
-              onDataModeToggle={handleDataModeToggle}
             />
           ) : null}
           

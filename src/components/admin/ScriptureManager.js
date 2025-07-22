@@ -23,12 +23,13 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 import ChapterManager from './ChapterManager';
+import dataManager from '../../data/dataManager';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Panel } = Collapse;
 
-const ScriptureManager = ({ isUsingExampleData }) => {
+const ScriptureManager = () => {
   const [scriptures, setScriptures] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingScripture, setEditingScripture] = useState(null);
@@ -36,50 +37,26 @@ const ScriptureManager = ({ isUsingExampleData }) => {
   const [selectedScripture, setSelectedScripture] = useState(null);
   const [form] = Form.useForm();
 
-  // 模擬資料載入
+  // 載入資料
   useEffect(() => {
-    if (isUsingExampleData) {
-      // 載入範例資料
-      setScriptures([
-        {
-          id: 'mahaPrajnaparamita',
-          name: '大般若波羅蜜多經',
-          description: '般若部重要經典',
-          chapters: [
-            { id: 'chapter1', name: '第一章', description: '經文開始，敘述說法因緣' },
-            { id: 'chapter2', name: '第二章', description: '講述觀照般若的修學方法' }
-          ]
-        },
-        {
-          id: 'diamondSutra',
-          name: '金剛般若波羅蜜經',
-          description: '般若系經典中最著名的經典之一',
-          chapters: [
-            { id: 'chapter1', name: '法會因由分第一', description: '敘述法會的因緣' },
-            { id: 'chapter2', name: '善現啟請分第二', description: '須菩提向佛請法' }
-          ]
-        },
-        {
-          id: 'heartSutra',
-          name: '般若波羅蜜多心經',
-          description: '般若經典的精髓濃縮',
-          chapters: [
-            { id: 'chapter1', name: '觀自在菩薩', description: '心經全文' }
-          ]
-        }
-      ]);
-    } else {
-      // 載入管理員資料 (可以從 localStorage 或 API)
-      const savedData = localStorage.getItem('adminScriptures');
-      setScriptures(savedData ? JSON.parse(savedData) : []);
-    }
-  }, [isUsingExampleData]);
+    loadData();
+    
+    // 訂閱資料變化
+    const unsubscribe = dataManager.subscribe(() => {
+      loadData();
+    });
+    
+    return unsubscribe;
+  }, []);
 
-  // 儲存到 localStorage
-  const saveToStorage = (data) => {
-    if (!isUsingExampleData) {
-      localStorage.setItem('adminScriptures', JSON.stringify(data));
-    }
+  const loadData = () => {
+    const data = dataManager.getScripturesArray();
+    setScriptures(data);
+  };
+
+  // 儲存資料
+  const saveData = (data) => {
+    dataManager.saveScripturesData(data);
   };
 
   const showModal = (scripture = null) => {
@@ -122,7 +99,7 @@ const ScriptureManager = ({ isUsingExampleData }) => {
       }
 
       setScriptures(newScriptures);
-      saveToStorage(newScriptures);
+      saveData(newScriptures);
       handleCancel();
     } catch (error) {
       console.error('表單驗證失敗:', error);
@@ -132,7 +109,7 @@ const ScriptureManager = ({ isUsingExampleData }) => {
   const handleDelete = (id) => {
     const newScriptures = scriptures.filter(s => s.id !== id);
     setScriptures(newScriptures);
-    saveToStorage(newScriptures);
+    saveData(newScriptures);
     message.success('典籍刪除成功！');
   };
 
@@ -160,19 +137,13 @@ const ScriptureManager = ({ isUsingExampleData }) => {
       <Row gutter={[16, 16]}>
         {/* 操作按鈕 */}
         <Col span={24}>
-          <Space>
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />}
-              onClick={() => showModal()}
-              disabled={isUsingExampleData}
-            >
-              新增典籍
-            </Button>
-            {isUsingExampleData && (
-              <Tag color="orange">範例模式：無法編輯</Tag>
-            )}
-          </Space>
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />}
+            onClick={() => showModal()}
+          >
+            新增典籍
+          </Button>
         </Col>
 
         {/* 典籍列表 */}
@@ -197,7 +168,6 @@ const ScriptureManager = ({ isUsingExampleData }) => {
                     </Space>
                   }
                   extra={
-                    !isUsingExampleData && (
                       <Space>
                         <Button
                           type="link"
@@ -217,7 +187,6 @@ const ScriptureManager = ({ isUsingExampleData }) => {
                           />
                         </Popconfirm>
                       </Space>
-                    )
                   }
                   style={{ height: '100%' }}
                 >
@@ -250,32 +219,28 @@ const ScriptureManager = ({ isUsingExampleData }) => {
                             ))}
                           </Panel>
                         </Collapse>
-                        {!isUsingExampleData && (
-                          <Button 
-                            type="link" 
-                            size="small"
-                            onClick={() => showChapterManager(scripture)}
-                            style={{ marginTop: '8px', padding: 0 }}
-                          >
-                            管理章節內容 →
-                          </Button>
-                        )}
+                        <Button 
+                          type="link" 
+                          size="small"
+                          onClick={() => showChapterManager(scripture)}
+                          style={{ marginTop: '8px', padding: 0 }}
+                        >
+                          管理章節內容 →
+                        </Button>
                       </div>
                     ) : (
                       <div>
                         <Paragraph style={{ color: '#999', fontSize: '12px' }}>
                           尚未新增章節
                         </Paragraph>
-                        {!isUsingExampleData && (
-                          <Button 
-                            type="link" 
-                            size="small"
-                            onClick={() => showChapterManager(scripture)}
-                            style={{ marginTop: '4px', padding: 0 }}
-                          >
-                            新增章節 →
-                          </Button>
-                        )}
+                        <Button 
+                          type="link" 
+                          size="small"
+                          onClick={() => showChapterManager(scripture)}
+                          style={{ marginTop: '4px', padding: 0 }}
+                        >
+                          新增章節 →
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -328,7 +293,6 @@ const ScriptureManager = ({ isUsingExampleData }) => {
           visible={showChapterModal}
           onClose={handleChapterModalClose}
           scripture={selectedScripture}
-          isUsingExampleData={isUsingExampleData}
         />
       )}
     </div>

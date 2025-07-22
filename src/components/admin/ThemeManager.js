@@ -32,8 +32,7 @@ const ThemeManager = ({
   onClose, 
   scripture,
   chapter,
-  section,
-  isUsingExampleData 
+  section
 }) => {
   const [themes, setThemes] = useState([]);
   const [isThemeModalVisible, setIsThemeModalVisible] = useState(false);
@@ -150,7 +149,6 @@ const ThemeManager = ({
                 type="primary" 
                 icon={<PlusOutlined />}
                 onClick={() => showThemeModal()}
-                disabled={isUsingExampleData}
               >
                 新增主題內容
               </Button>
@@ -179,7 +177,6 @@ const ThemeManager = ({
                       </Space>
                     }
                     extra={
-                      !isUsingExampleData && (
                         <Space>
                           <Button
                             type="link"
@@ -199,7 +196,6 @@ const ThemeManager = ({
                             />
                           </Popconfirm>
                         </Space>
-                      )
                     }
                     style={{ height: '100%' }}
                   >

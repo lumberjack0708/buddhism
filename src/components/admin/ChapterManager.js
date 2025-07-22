@@ -29,8 +29,7 @@ const { TextArea } = Input;
 const ChapterManager = ({ 
   visible, 
   onClose, 
-  scripture, 
-  isUsingExampleData 
+  scripture
 }) => {
   const [chapters, setChapters] = useState([]);
   const [isChapterModalVisible, setIsChapterModalVisible] = useState(false);
@@ -161,7 +160,6 @@ const ChapterManager = ({
                 type="primary" 
                 icon={<PlusOutlined />}
                 onClick={() => showChapterModal()}
-                disabled={isUsingExampleData}
               >
                 新增章節
               </Button>
@@ -189,7 +187,6 @@ const ChapterManager = ({
                       </Space>
                     }
                     extra={
-                      !isUsingExampleData && (
                         <Space>
                           <Button
                             type="link"
@@ -207,10 +204,9 @@ const ChapterManager = ({
                               danger
                               icon={<DeleteOutlined />}
                             />
-                          </Popconfirm>
-                        </Space>
-                      )
-                    }
+                                                  </Popconfirm>
+                      </Space>
+                  }
                     style={{ height: '100%' }}
                   >
                     <Paragraph ellipsis={{ rows: 2 }} style={{ color: '#666' }}>
@@ -233,17 +229,15 @@ const ChapterManager = ({
                         </Paragraph>
                       )}
                       
-                      {!isUsingExampleData && (
-                        <Button 
-                          type="link" 
-                          size="small"
-                          icon={<SettingOutlined />}
-                          onClick={() => showSectionManager(chapter)}
-                          style={{ marginTop: '4px', padding: 0 }}
-                        >
-                          管理小節內容 →
-                        </Button>
-                      )}
+                      <Button 
+                        type="link" 
+                        size="small"
+                        icon={<SettingOutlined />}
+                        onClick={() => showSectionManager(chapter)}
+                        style={{ marginTop: '4px', padding: 0 }}
+                      >
+                        管理小節內容 →
+                      </Button>
                     </div>
                   </Card>
                 </List.Item>
@@ -310,7 +304,6 @@ const ChapterManager = ({
           onClose={handleSectionModalClose}
           scripture={scripture}
           chapter={selectedChapter}
-          isUsingExampleData={isUsingExampleData}
         />
       )}
     </>
