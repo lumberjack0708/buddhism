@@ -214,7 +214,7 @@ const AdminPage = ({ onBackToHome }) => {
 
   return (
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
-      <Card style={{ marginBottom: '24px' }}>
+      <Card className="no-hover-effect" style={{ marginBottom: '24px' }}>
         <Button 
           icon={<ArrowLeftOutlined />} 
           onClick={onBackToHome}
@@ -231,7 +231,7 @@ const AdminPage = ({ onBackToHome }) => {
         </Paragraph>
       </Card>
 
-      <Card>
+      <Card className="no-hover-effect">
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}

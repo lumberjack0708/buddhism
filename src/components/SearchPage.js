@@ -39,7 +39,7 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
       <Row gutter={[24, 24]}>
         {/* 返回按鈕和標題 */}
         <Col span={24}>
-          <Card>
+          <Card className="no-hover-effect">
             <Button 
               icon={<ArrowLeftOutlined />} 
               onClick={onBackToHome}
@@ -82,6 +82,7 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
         {/* 搜尋結果 */}
         <Col span={24}>
           <Card 
+            className="no-hover-effect"
             title={
               <span>
                 <FileTextOutlined style={{ marginRight: '8px' }} />
@@ -189,7 +190,7 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
 
         {/* 搜尋提示 */}
         <Col span={24}>
-          <Card style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
+          <Card className="no-hover-effect" style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
             <Title level={5} style={{ color: '#389e0d', margin: '0 0 8px 0' }}>
               🔍 搜尋技巧
             </Title>

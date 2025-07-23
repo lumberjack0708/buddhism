@@ -158,46 +158,46 @@ const QAManager = () => {
 
           {/* 問答列表 */}
           <Col span={24}>
-            <List
-              grid={{
-                gutter: 16,
-                xs: 1,
-                sm: 1,
-                md: 2,
-                lg: 2,
-              }}
-              dataSource={getFilteredQAList()}
-              renderItem={qa => (
-                <List.Item>
-                  <Card
-                    title={
-                      <Space>
-                        <QuestionCircleOutlined style={{ color: '#1890ff' }} />
-                        <Tag color="blue">{qa.category}</Tag>
-                      </Space>
-                    }
-                    extra={
-                      <Space>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+              gap: '16px',
+              '@media (max-width: 768px)': {
+                gridTemplateColumns: '1fr'
+              }
+            }}>
+              {getFilteredQAList().map(qa => (
+                <Card
+                  key={qa.id}
+                  className="no-hover-effect"
+                  title={
+                    <Space>
+                      <QuestionCircleOutlined style={{ color: '#1890ff' }} />
+                      <Tag color="blue">{qa.category}</Tag>
+                    </Space>
+                  }
+                  extra={
+                    <Space>
+                      <Button
+                        type="link"
+                        icon={<EditOutlined />}
+                        onClick={() => showModal(qa)}
+                      />
+                      <Popconfirm
+                        title="確定要刪除這個問答嗎？"
+                        onConfirm={() => handleDelete(qa.id)}
+                        okText="確定"
+                        cancelText="取消"
+                      >
                         <Button
                           type="link"
-                          icon={<EditOutlined />}
-                          onClick={() => showModal(qa)}
+                          danger
+                          icon={<DeleteOutlined />}
                         />
-                        <Popconfirm
-                          title="確定要刪除這個問答嗎？"
-                          onConfirm={() => handleDelete(qa.id)}
-                          okText="確定"
-                          cancelText="取消"
-                        >
-                          <Button
-                            type="link"
-                            danger
-                            icon={<DeleteOutlined />}
-                          />
-                        </Popconfirm>
-                      </Space>
-                    }
-                    style={{ height: '100%' }}
+                      </Popconfirm>
+                    </Space>
+                  }
+                  style={{ height: '100%', minHeight: '300px' }}
                   >
                     <div style={{ marginBottom: '12px' }}>
                       <Title level={5} style={{ color: '#722ed1', margin: '0 0 8px 0' }}>
@@ -235,14 +235,13 @@ const QAManager = () => {
                       </div>
                     )}
                   </Card>
-                </List.Item>
-              )}
-            />
-          </Col>
+                ))}
+              </div>
+            </Col>
 
           {getFilteredQAList().length === 0 && (
             <Col span={24}>
-              <Card style={{ textAlign: 'center', backgroundColor: '#fafafa' }}>
+              <Card className="no-hover-effect" style={{ textAlign: 'center', backgroundColor: '#fafafa' }}>
                 <MessageOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
                 <Title level={4} style={{ color: '#999' }}>
                   {filteredCategory ? `「${filteredCategory}」類別下沒有問答` : '尚未新增任何問答'}

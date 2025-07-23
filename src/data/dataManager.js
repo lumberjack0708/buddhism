@@ -219,10 +219,12 @@ class DataManager {
               sectionId: section.id,
               sectionTitle: section.title,
               transcript: transcript,
-              highlightedTranscript: transcript.replace(
-                new RegExp(`(${keyword})`, 'gi'),
-                '<mark>$1</mark>'
-              )
+              highlightedTranscript: (transcript || '')
+                .replace(/\n/g, '<br/>')
+                .replace(
+                  new RegExp(`(${keyword})`, 'gi'),
+                  '<mark>$1</mark>'
+                )
             });
           }
           

@@ -101,7 +101,7 @@ const ChapterPage = ({
       <Row gutter={[24, 24]}>
         {/* 返回按鈕和標題 */}
         <Col span={24}>
-          <Card>
+          <Card className="no-hover-effect">
             <div style={{ marginBottom: '16px' }}>
               <Button 
                 icon={<ArrowLeftOutlined />} 
@@ -141,7 +141,7 @@ const ChapterPage = ({
 
         {/* 小節內容 */}
         <Col span={24}>
-          <Card title={
+          <Card className="no-hover-effect" title={
             <span>
               <ReadOutlined style={{ marginRight: '8px' }} />
               學習主題
@@ -186,10 +186,14 @@ const ChapterPage = ({
                         <FileTextOutlined style={{ marginRight: '8px' }} />
                         主題綱要
                       </Title>
-                      <Card size="small" style={{ backgroundColor: '#f9f9f9' }}>
-                        <Paragraph style={{ margin: 0, fontSize: '16px', lineHeight: '1.8' }}>
-                          {theme.outline}
-                        </Paragraph>
+                      <Card className="no-hover-effect" size="small" style={{ backgroundColor: '#f9f9f9' }}>
+                        <div style={{ margin: 0, fontSize: '16px', lineHeight: '1.8' }}>
+                          {(theme.outline || '').split('\n').map((line, index, array) => (
+                            <div key={index} style={{ marginBottom: index === array.length - 1 ? 0 : '8px' }}>
+                              {line || '\u00A0'}
+                            </div>
+                          ))}
+                        </div>
                       </Card>
                     </div>
 
@@ -206,7 +210,7 @@ const ChapterPage = ({
                         <BulbOutlined style={{ marginRight: '8px' }} />
                         重點
                       </Title>
-                      <Card size="small" style={{ backgroundColor: '#fff7e6', border: '1px solid #ffd591' }}>
+                      <Card className="no-hover-effect" size="small" style={{ backgroundColor: '#fff7e6', border: '1px solid #ffd591' }}>
                         <div style={{ fontSize: '16px', lineHeight: '1.8', color: '#333' }}>
                           {theme.keyPoints?.split('\n').map((point, pointIndex) => (
                             <div key={pointIndex} style={{ marginBottom: '8px' }}>
@@ -230,15 +234,19 @@ const ChapterPage = ({
                         <ReadOutlined style={{ marginRight: '8px' }} />
                         經文內容
                       </Title>
-                      <Card size="small" style={{ backgroundColor: '#fff9f0' }}>
-                        <Text style={{ 
+                      <Card className="no-hover-effect" size="small" style={{ backgroundColor: '#fff9f0' }}>
+                        <div style={{ 
                           fontSize: '16px', 
                           lineHeight: '2', 
                           fontFamily: 'serif',
                           color: '#333'
                         }}>
-                          {theme.transcript}
-                        </Text>
+                          {(theme.transcript || '').split('\n').map((line, index, array) => (
+                            <div key={index} style={{ marginBottom: index === array.length - 1 ? 0 : '8px' }}>
+                              {line || '\u00A0'}
+                            </div>
+                          ))}
+                        </div>
                       </Card>
                     </div>
                   </div>
@@ -250,7 +258,7 @@ const ChapterPage = ({
 
         {/* 學習提示 */}
         <Col span={24}>
-          <Card style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
+          <Card className="no-hover-effect" style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
             <Title level={5} style={{ color: '#389e0d', margin: '0 0 8px 0' }}>
               <BulbOutlined style={{ marginRight: '6px' }} />
               學習小貼士

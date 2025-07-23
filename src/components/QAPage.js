@@ -46,7 +46,7 @@ const QAPage = ({ onBackToHome }) => {
       <Row gutter={[24, 24]}>
         {/* 返回按鈕和標題 */}
         <Col span={24}>
-          <Card>
+          <Card className="no-hover-effect">
             <Button 
               icon={<ArrowLeftOutlined />} 
               onClick={onBackToHome}
@@ -113,6 +113,7 @@ const QAPage = ({ onBackToHome }) => {
         {/* 問答內容 */}
         <Col span={24}>
           <Card 
+            className="no-hover-effect"
             title={
               <span>
                 <MessageOutlined style={{ marginRight: '8px' }} />
@@ -195,7 +196,7 @@ const QAPage = ({ onBackToHome }) => {
 
         {/* 提示資訊 */}
         <Col span={24}>
-          <Card style={{ backgroundColor: '#e6f4ff', border: '1px solid #91caff' }}>
+          <Card className="no-hover-effect" style={{ backgroundColor: '#e6f4ff', border: '1px solid #91caff' }}>
             <Title level={5} style={{ color: '#0958d9', margin: '0 0 8px 0' }}>
               💡 使用說明
             </Title>
