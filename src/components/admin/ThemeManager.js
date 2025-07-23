@@ -23,7 +23,9 @@ import {
   FileTextOutlined,
   BulbOutlined
 } from '@ant-design/icons';
-import dataManager from '../../data/dataManager';
+/* global Qs */
+import Request from '../../utils/Request';
+import { getApiUrl } from '../../config';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -48,26 +50,26 @@ const ThemeManager = ({
   }, [section, visible]);
 
   // 儲存資料
-  const saveSectionData = (updatedThemes) => {
-    const scriptures = dataManager.getScripturesArray();
-    const updatedScriptures = scriptures.map(script => {
-      if (script.id === scripture.id) {
-        const updatedChapters = script.chapters.map(chap => {
-          if (chap.id === chapter.id) {
-            const updatedSections = chap.sections.map(sect => 
-              sect.id === section.id 
-                ? { ...sect, themes: updatedThemes }
-                : sect
-            );
-            return { ...chap, sections: updatedSections };
-          }
-          return chap;
-        });
-        return { ...script, chapters: updatedChapters };
+  const saveSectionData = async (updatedThemes) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('themes_create'),
+        Qs.stringify({ 
+          sectionId: section.id,
+          themes: JSON.stringify(updatedThemes)
+        })
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        console.error('儲存主題失敗:', response.data.message);
+        return false;
       }
-      return script;
-    });
-    dataManager.saveScripturesData(updatedScriptures);
+    } catch (error) {
+      console.error('儲存主題錯誤:', error);
+      return false;
+    }
   };
 
   const showThemeModal = (theme = null) => {
@@ -98,7 +100,6 @@ const ThemeManager = ({
             ? { ...t, ...values }
             : t
         );
-        message.success('主題更新成功！');
       } else {
         // 新增主題
         const newId = `theme_${Date.now()}`;
@@ -107,22 +108,30 @@ const ThemeManager = ({
           ...values
         };
         updatedThemes = [...themes, newTheme];
-        message.success('主題新增成功！');
       }
 
-      setThemes(updatedThemes);
-      saveSectionData(updatedThemes);
-      handleThemeModalCancel();
+      const success = await saveSectionData(updatedThemes);
+      if (success) {
+        setThemes(updatedThemes);
+        message.success(editingTheme ? '主題更新成功！' : '主題新增成功！');
+        handleThemeModalCancel();
+      } else {
+        message.error('儲存失敗，請稍後再試');
+      }
     } catch (error) {
       console.error('表單驗證失敗:', error);
     }
   };
 
-  const handleThemeDelete = (id) => {
+  const handleThemeDelete = async (id) => {
     const updatedThemes = themes.filter(t => t.id !== id);
-    setThemes(updatedThemes);
-    saveSectionData(updatedThemes);
-    message.success('主題刪除成功！');
+    const success = await saveSectionData(updatedThemes);
+    if (success) {
+      setThemes(updatedThemes);
+      message.success('主題刪除成功！');
+    } else {
+      message.error('刪除失敗，請稍後再試');
+    }
   };
 
   return (

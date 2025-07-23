@@ -1,3 +1,4 @@
+/* global Qs */
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -22,7 +23,8 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 import ChapterManager from './ChapterManager';
-import dataManager from '../../data/dataManager';
+import Request from '../../utils/Request';
+import { getApiUrl } from '../../config';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -39,23 +41,88 @@ const ScriptureManager = () => {
   // 載入資料
   useEffect(() => {
     loadData();
-    
-    // 訂閱資料變化
-    const unsubscribe = dataManager.subscribe(() => {
-      loadData();
-    });
-    
-    return unsubscribe;
   }, []);
 
-  const loadData = () => {
-    const data = dataManager.getScripturesArray();
-    setScriptures(data);
+  const loadData = async () => {
+    try {
+      const response = await Request().post(
+        getApiUrl('scriptures_getAll'),
+        Qs.stringify({})
+      );
+      
+      if (response.data.status === 200) {
+        setScriptures(response.data.result || []);
+      } else {
+        console.error('載入典籍失敗:', response.data.message);
+        message.error('載入典籍失敗');
+      }
+    } catch (error) {
+      console.error('載入典籍錯誤:', error);
+      message.error('載入典籍失敗');
+    }
   };
 
-  // 儲存資料
-  const saveData = (data) => {
-    dataManager.saveScripturesData(data);
+  // 儲存典籍資料
+  const saveScripture = async (scripture) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('scriptures_create'),
+        Qs.stringify(scripture)
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        message.error(response.data.message || '儲存失敗');
+        return false;
+      }
+    } catch (error) {
+      console.error('儲存典籍錯誤:', error);
+      message.error('儲存典籍失敗');
+      return false;
+    }
+  };
+
+  // 更新典籍資料
+  const updateScripture = async (id, scripture) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('scriptures_update'),
+        Qs.stringify({ id, ...scripture })
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        message.error(response.data.message || '更新失敗');
+        return false;
+      }
+    } catch (error) {
+      console.error('更新典籍錯誤:', error);
+      message.error('更新典籍失敗');
+      return false;
+    }
+  };
+
+  // 刪除典籍資料
+  const deleteScripture = async (id) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('scriptures_delete'),
+        Qs.stringify({ id })
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        message.error(response.data.message || '刪除失敗');
+        return false;
+      }
+    } catch (error) {
+      console.error('刪除典籍錯誤:', error);
+      message.error('刪除典籍失敗');
+      return false;
+    }
   };
 
   const showModal = (scripture = null) => {
@@ -77,39 +144,40 @@ const ScriptureManager = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      let newScriptures;
 
       if (editingScripture) {
         // 編輯現有典籍
-        newScriptures = scriptures.map(s => 
-          s.id === editingScripture.id ? { ...s, ...values } : s
-        );
-        message.success('典籍更新成功！');
+        const success = await updateScripture(editingScripture.id, values);
+        if (success) {
+          message.success('典籍更新成功！');
+          loadData(); // 重新載入資料
+          handleCancel();
+        }
       } else {
         // 新增典籍
-        const newId = `scripture_${Date.now()}`;
         const newScripture = {
-          id: newId,
+          id: `scripture_${Date.now()}`,
           ...values,
           chapters: []
         };
-        newScriptures = [...scriptures, newScripture];
-        message.success('典籍新增成功！');
+        const success = await saveScripture(newScripture);
+        if (success) {
+          message.success('典籍新增成功！');
+          loadData(); // 重新載入資料
+          handleCancel();
+        }
       }
-
-      setScriptures(newScriptures);
-      saveData(newScriptures);
-      handleCancel();
     } catch (error) {
       console.error('表單驗證失敗:', error);
     }
   };
 
-  const handleDelete = (id) => {
-    const newScriptures = scriptures.filter(s => s.id !== id);
-    setScriptures(newScriptures);
-    saveData(newScriptures);
-    message.success('典籍刪除成功！');
+  const handleDelete = async (id) => {
+    const success = await deleteScripture(id);
+    if (success) {
+      message.success('典籍刪除成功！');
+      loadData(); // 重新載入資料
+    }
   };
 
   const showChapterManager = (scripture) => {
@@ -121,8 +189,7 @@ const ScriptureManager = () => {
     setShowChapterModal(false);
     setSelectedScripture(null);
     // 重新載入資料以反映變更
-    const data = dataManager.getScripturesArray();
-    setScriptures(data);
+    loadData();
   };
 
   return (

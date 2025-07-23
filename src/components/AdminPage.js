@@ -20,10 +20,12 @@ import {
   FileTextOutlined,
   ReloadOutlined
 } from '@ant-design/icons';
+/* global Qs */
 import ScriptureManager from './admin/ScriptureManager';
 import QAManager from './admin/QAManager';
-import { exportAllData, importAllData, generateSampleJSON } from '../utils/dataExportImport';
-import dataManager from '../data/dataManager';
+import { exportAllData, generateSampleJSON } from '../utils/dataExportImport';
+import Request from '../utils/Request';
+import { getApiUrl } from '../config';
 
 const { Title, Paragraph } = Typography;
 
@@ -37,14 +39,25 @@ const AdminPage = ({ onBackToHome }) => {
 
   // 處理資料匯入
   const handleImport = async (file) => {
-    const result = await importAllData(file);
-    if (result.success) {
-      message.success(result.message);
-      // 清除 dataManager 快取並重新載入
-      dataManager.clearCache();
-      dataManager.notify();
-    } else {
-      message.error(result.message);
+    try {
+      const fileContent = await file.text();
+      const data = JSON.parse(fileContent);
+
+      const response = await Request().post(
+        getApiUrl('importData'),
+        Qs.stringify({ data: JSON.stringify(data) })
+      );
+      
+      if (response.data.status === 200) {
+        message.success('資料匯入成功！');
+        // 可以在這裡添加頁面重新載入邏輯
+        window.location.reload();
+      } else {
+        message.error(response.data.message || '匯入失敗');
+      }
+    } catch (error) {
+      console.error('匯入資料失敗:', error);
+      message.error(`匯入失敗: ${error.message}`);
     }
     return false; // 阻止Upload組件的默認上傳行為
   };
@@ -56,10 +69,21 @@ const AdminPage = ({ onBackToHome }) => {
 
   // 重設為預設資料
   const handleResetToDefault = async () => {
-    const success = await dataManager.resetToDefault();
-    if (success) {
-      message.success('已重設為預設資料！');
-    } else {
+    try {
+      const response = await Request().post(
+        getApiUrl('resetData'),
+        Qs.stringify({})
+      );
+      
+      if (response.data.status === 200) {
+        message.success('已重設為預設資料！');
+        // 重新載入頁面以顯示最新資料
+        window.location.reload();
+      } else {
+        message.error(response.data.message || '重設失敗，請稍後再試');
+      }
+    } catch (error) {
+      console.error('重設資料失敗:', error);
       message.error('重設失敗，請稍後再試');
     }
   };

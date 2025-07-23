@@ -1,3 +1,4 @@
+/* global Qs */
 import React, { useState, useEffect } from 'react';
 import { ConfigProvider, Layout, FloatButton } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
@@ -10,6 +11,8 @@ import AdminPage from './components/AdminPage';
 import dataManager from './data/dataManager';
 import 'antd/dist/reset.css';
 import './App.css';
+import Request from './utils/Request';
+import { getApiUrl } from './config';
 
 const { Content } = Layout;
 
@@ -33,8 +36,78 @@ function App() {
 
   const loadChapterContent = async (scriptureId, chapterId) => {
     try {
-      const chapterContent = await dataManager.getChapterContent(scriptureId, chapterId);
-      setChapterData(chapterContent);
+      const response = await Request().post(
+        getApiUrl('chapters_getStructure'),
+        Qs.stringify({ id: chapterId })
+      );
+      
+      console.log('章節結構回應:', response.data);
+      
+      if (response.data.status === 200) {
+        const structureData = response.data.result || [];
+        
+        if (structureData.length === 0) {
+          setChapterData(null);
+          return;
+        }
+        
+        // 重組章節數據結構
+        const chapterInfo = structureData[0];
+        const chapterData = {
+          id: chapterInfo.chapter_id,
+          name: chapterInfo.chapter_name,
+          description: chapterInfo.chapter_description,
+          scripture_id: chapterInfo.scripture_id,
+          scripture_name: chapterInfo.scripture_name,
+          sections: []
+        };
+        
+        // 將小節和主題數據分組
+        const sectionsMap = new Map();
+        structureData.forEach(row => {
+          if (row.section_id) {
+            if (!sectionsMap.has(row.section_id)) {
+              sectionsMap.set(row.section_id, {
+                id: row.section_id,
+                title: row.section_title,
+                theme: row.section_theme,
+                outline: row.section_outline || '',
+                keyPoints: row.section_key_points || '',
+                transcript: row.section_transcript || '',
+                youtubeId: row.section_youtube_id || '',
+                order_index: row.section_order || 0,
+                themes: []
+              });
+            }
+            
+            // 如果有主題數據，添加到主題數組中
+            if (row.theme_id) {
+              const section = sectionsMap.get(row.section_id);
+              // 檢查主題是否已經存在（避免重複）
+              const existingTheme = section.themes.find(t => t.id === row.theme_id);
+              if (!existingTheme) {
+                section.themes.push({
+                  id: row.theme_id,
+                  name: row.theme_name,
+                  outline: row.theme_outline || '',
+                  keyPoints: row.theme_key_points || '',
+                  transcript: row.theme_transcript || '',
+                  youtubeId: row.theme_youtube_id || '',
+                  order_index: row.theme_order || 0
+                });
+                // 排序主題
+                section.themes.sort((a, b) => a.order_index - b.order_index);
+              }
+            }
+          }
+        });
+        
+        chapterData.sections = Array.from(sectionsMap.values()).sort((a, b) => a.order_index - b.order_index);
+        setChapterData(chapterData);
+      } else {
+        console.error('載入章節結構失敗:', response.data.message);
+        setChapterData(null);
+      }
     } catch (error) {
       console.error('載入章節內容錯誤:', error);
       setChapterData(null);
@@ -103,7 +176,7 @@ function App() {
               scriptureId={selectedScripture}
               chapterId={selectedChapter}
               chapterData={chapterData}
-              scriptureName={dataManager.getScripturesData()[selectedScripture]?.name}
+              scriptureName={chapterData?.scripture_name || '載入中...'}
               onBackToHome={handleBackToHome}
               onSectionSelect={handleSectionSelect}
             />
@@ -113,7 +186,7 @@ function App() {
               chapterId={selectedChapter}
               sectionId={selectedSection}
               chapterData={chapterData}
-              scriptureName={dataManager.getScripturesData()[selectedScripture]?.name}
+              scriptureName={chapterData?.scripture_name || '載入中...'}
               onBackToHome={handleBackToHome}
               onBackToChapter={handleBackToChapter}
             />

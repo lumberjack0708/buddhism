@@ -1,3 +1,4 @@
+/* global Qs */
 import React, { useState } from 'react';
 import { Card, Typography, Row, Col, Button, Input, List, Tag, Empty, Spin, message } from 'antd';
 import { 
@@ -6,7 +7,8 @@ import {
   BookOutlined,
   FileTextOutlined
 } from '@ant-design/icons';
-import dataManager from '../data/dataManager';
+import Request from '../utils/Request';
+import { getApiUrl } from '../config';
 
 const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
@@ -27,12 +29,36 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
     try {
       setLoading(true);
       setSearchKeyword(value);
-      const results = await dataManager.searchScriptures(value.trim());
-      setSearchResults(results);
-      setIsSearched(true);
+      
+      const response = await Request().post(
+        getApiUrl('scriptures_search'),
+        Qs.stringify({ keyword: value.trim() })
+      );
+      
+      if (response.data.status === 200) {
+        const results = response.data.result || [];
+        const formattedResults = results.map(result => ({
+          scriptureId: result.scripture_id,
+          scriptureName: result.scripture_name,
+          chapterId: result.chapter_id,
+          chapterName: result.chapter_name,
+          sectionId: result.section_id,
+          sectionTitle: result.section_title,
+          transcript: result.transcript || '',
+          highlightedTranscript: result.highlighted_transcript || result.transcript || ''
+        }));
+        setSearchResults(formattedResults);
+        setIsSearched(true);
+      } else {
+        message.error(response.data.message || '搜尋失敗');
+        setSearchResults([]);
+        setIsSearched(true);
+      }
     } catch (error) {
-      message.error('搜尋失敗');
+      message.error('搜尋失敗，請稍後再試');
       console.error('搜尋錯誤:', error);
+      setSearchResults([]);
+      setIsSearched(true);
     } finally {
       setLoading(false);
     }

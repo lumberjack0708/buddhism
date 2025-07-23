@@ -1,3 +1,4 @@
+/* global Qs */
 import React, { useState, useEffect } from 'react';
 import { Card, Collapse, Typography, Row, Col, Select, Tag, Button, Input, Spin, message } from 'antd';
 import { 
@@ -7,7 +8,9 @@ import {
   TagOutlined,
   SearchOutlined
 } from '@ant-design/icons';
-import dataManager from '../data/dataManager';
+import Request from '../utils/Request';
+import { getApiUrl } from '../config';
+import apiManager from '../utils/apiManager';
 
 const { Title, Paragraph, Text } = Typography;
 const { Panel } = Collapse;
@@ -29,15 +32,37 @@ const QAPage = ({ onBackToHome }) => {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      const [qaData, categoriesData] = await Promise.all([
-        dataManager.getQAData(),
-        dataManager.getQACategories()
+      
+      // 同時載入問答資料和分類
+      const [qaResponse, categoriesResponse] = await Promise.all([
+        Request().post(getApiUrl('qa_getAll'), Qs.stringify({})),
+        Request().post(getApiUrl('qa_getCategories'), Qs.stringify({}))
       ]);
-      setDisplayedQA(qaData);
-      setCategories(categoriesData);
+      
+      console.log('問答資料回應:', qaResponse.data);
+      console.log('分類資料回應:', categoriesResponse.data);
+      
+      if (qaResponse.data.status === 200) {
+        const qaData = qaResponse.data.result || [];
+        setDisplayedQA(qaData);
+        message.success(`成功載入 ${qaData.length} 個問答`);
+      } else {
+        message.error(qaResponse.data.message || '載入問答資料失敗');
+        setDisplayedQA([]);
+      }
+      
+      if (categoriesResponse.data.status === 200) {
+        const categoriesData = categoriesResponse.data.result || [];
+        setCategories(categoriesData);
+      } else {
+        console.error('載入分類失敗:', categoriesResponse.data.message);
+        setCategories([]);
+      }
     } catch (error) {
-      message.error('載入問答資料失敗');
+      message.error('載入問答資料失敗，請檢查網路連線');
       console.error('載入問答資料錯誤:', error);
+      setDisplayedQA([]);
+      setCategories([]);
     } finally {
       setLoading(false);
     }
@@ -48,11 +73,26 @@ const QAPage = ({ onBackToHome }) => {
       setLoading(true);
       setSelectedCategory(category);
       setSearchKeyword('');
-      const filteredQA = await dataManager.getQAByCategory(category);
-      setDisplayedQA(filteredQA);
+      
+      const response = await Request().post(
+        getApiUrl('qa_getByCategory'),
+        Qs.stringify({ category })
+      );
+      
+      console.log('分類篩選回應:', response.data);
+      
+      if (response.data.status === 200) {
+        const filteredQA = response.data.result || [];
+        setDisplayedQA(filteredQA);
+        message.success(`找到 ${filteredQA.length} 個相關問答`);
+      } else {
+        message.error(response.data.message || '篩選問答失敗');
+        setDisplayedQA([]);
+      }
     } catch (error) {
-      message.error('篩選問答失敗');
+      message.error('篩選問答失敗，請檢查網路連線');
       console.error('篩選問答錯誤:', error);
+      setDisplayedQA([]);
     } finally {
       setLoading(false);
     }
@@ -63,11 +103,26 @@ const QAPage = ({ onBackToHome }) => {
       setLoading(true);
       setSearchKeyword(value);
       setSelectedCategory(null);
-      const searchResults = await dataManager.searchQA(value);
-      setDisplayedQA(searchResults);
+      
+      const response = await Request().post(
+        getApiUrl('qa_search'),
+        Qs.stringify({ search: value })
+      );
+      
+      console.log('搜尋回應:', response.data);
+      
+      if (response.data.status === 200) {
+        const searchResults = response.data.result || [];
+        setDisplayedQA(searchResults);
+        message.success(`找到 ${searchResults.length} 個搜尋結果`);
+      } else {
+        message.error(response.data.message || '搜尋問答失敗');
+        setDisplayedQA([]);
+      }
     } catch (error) {
-      message.error('搜尋問答失敗');
+      message.error('搜尋問答失敗，請檢查網路連線');
       console.error('搜尋問答錯誤:', error);
+      setDisplayedQA([]);
     } finally {
       setLoading(false);
     }
@@ -78,7 +133,7 @@ const QAPage = ({ onBackToHome }) => {
       setLoading(true);
       setSelectedCategory(null);
       setSearchKeyword('');
-      const qaData = await dataManager.getQAData();
+      const qaData = await apiManager.getQAData();
       setDisplayedQA(qaData);
     } catch (error) {
       message.error('重置篩選失敗');

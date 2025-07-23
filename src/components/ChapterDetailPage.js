@@ -106,12 +106,12 @@ const ChapterDetailPage = ({
                     bodyStyle={{ padding: '16px' }}
                   >
                     {/* 小節主題 */}
-                    {(section.themes || section.theme) && (
+                    {(section.themes?.length > 0 || section.theme) && (
                       <div style={{ marginBottom: '12px' }}>
                         <Title level={5} style={{ color: '#fa8c16', margin: '0 0 8px 0' }}>
-                            主題 {section.themes ? `(${section.themes.length}個)` : ''}
+                            主題 {section.themes?.length > 0 ? `(${section.themes.length}個)` : '(1個)'}
                         </Title>
-                        {section.themes ? (
+                        {section.themes?.length > 0 ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             {section.themes.slice(0, 2).map((theme, index) => (
                               <div key={theme.id} style={{ 
@@ -137,9 +137,9 @@ const ChapterDetailPage = ({
                               </div>
                             )}
                           </div>
-                        ) : (
+                        ) : section.theme && (
                           <div style={{ 
-                            background: 'linear-gradient(135deg, #fff7e6 0%, #ffeaa7 100%)',
+                            backgroundColor: "#FFEEB8",
                             padding: '8px 12px',
                             borderRadius: '6px',
                             border: '1px solid #ffd591',
@@ -162,7 +162,7 @@ const ChapterDetailPage = ({
                         ellipsis={{ rows: 2 }}
                         style={{ margin: 0, color: '#666', fontSize: '14px' }}
                       >
-                        {section.themes ? section.themes[0]?.outline : section.outline}
+                        {section.themes?.length > 0 ? section.themes[0]?.outline : section.outline}
                       </Paragraph>
                     </div>
 
@@ -196,7 +196,7 @@ const ChapterDetailPage = ({
                           fontFamily: 'serif'
                         }}
                       >
-                        {section.themes ? section.themes[0]?.transcript : section.transcript}
+                        {section.themes?.length > 0 ? section.themes[0]?.transcript : section.transcript}
                       </Paragraph>
                     </div>
 

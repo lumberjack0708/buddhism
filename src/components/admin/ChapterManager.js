@@ -22,7 +22,9 @@ import {
   SettingOutlined
 } from '@ant-design/icons';
 import SectionManager from './SectionManager';
-import dataManager from '../../data/dataManager';
+/* global Qs */
+import Request from '../../utils/Request';
+import { getApiUrl } from '../../config';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -47,14 +49,28 @@ const ChapterManager = ({
   }, [scripture, visible]);
 
   // 儲存資料
-  const saveScriptureData = (updatedChapters) => {
-    const scriptures = dataManager.getScripturesArray();
-    const updatedScriptures = scriptures.map(s => 
-      s.id === scripture.id 
-        ? { ...s, chapters: updatedChapters }
-        : s
-    );
-    dataManager.saveScripturesData(updatedScriptures);
+  const saveScriptureData = async (updatedChapters) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('updateScripture'),
+        Qs.stringify({ 
+          id: scripture.id, 
+          name: scripture.name,
+          description: scripture.description,
+          chapters: JSON.stringify(updatedChapters)
+        })
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        console.error('儲存章節失敗:', response.data.message);
+        return false;
+      }
+    } catch (error) {
+      console.error('儲存章節錯誤:', error);
+      return false;
+    }
   };
 
   const showChapterModal = (chapter = null) => {
@@ -85,7 +101,6 @@ const ChapterManager = ({
             ? { ...c, ...values }
             : c
         );
-        message.success('章節更新成功！');
       } else {
         // 新增章節
         const newId = `chapter_${Date.now()}`;
@@ -95,22 +110,30 @@ const ChapterManager = ({
           sections: []
         };
         updatedChapters = [...chapters, newChapter];
-        message.success('章節新增成功！');
       }
 
-      setChapters(updatedChapters);
-      saveScriptureData(updatedChapters);
-      handleChapterModalCancel();
+      const success = await saveScriptureData(updatedChapters);
+      if (success) {
+        setChapters(updatedChapters);
+        message.success(editingChapter ? '章節更新成功！' : '章節新增成功！');
+        handleChapterModalCancel();
+      } else {
+        message.error('儲存失敗，請稍後再試');
+      }
     } catch (error) {
       console.error('表單驗證失敗:', error);
     }
   };
 
-  const handleChapterDelete = (id) => {
+  const handleChapterDelete = async (id) => {
     const updatedChapters = chapters.filter(c => c.id !== id);
-    setChapters(updatedChapters);
-    saveScriptureData(updatedChapters);
-    message.success('章節刪除成功！');
+    const success = await saveScriptureData(updatedChapters);
+    if (success) {
+      setChapters(updatedChapters);
+      message.success('章節刪除成功！');
+    } else {
+      message.error('刪除失敗，請稍後再試');
+    }
   };
 
   const showSectionManager = (chapter) => {
@@ -118,14 +141,25 @@ const ChapterManager = ({
     setShowSectionModal(true);
   };
 
-  const handleSectionModalClose = () => {
+  const handleSectionModalClose = async () => {
     setShowSectionModal(false);
     setSelectedChapter(null);
     // 重新載入章節資料
-    const scriptures = dataManager.getScripturesArray();
-    const currentScripture = scriptures.find(s => s.id === scripture.id);
-    if (currentScripture) {
-      setChapters(currentScripture.chapters || []);
+    try {
+      const response = await Request().post(
+        getApiUrl('getScriptures'),
+        Qs.stringify({})
+      );
+      
+      if (response.data.status === 200) {
+        const scriptures = response.data.result || [];
+        const currentScripture = scriptures.find(s => s.id === scripture.id);
+        if (currentScripture) {
+          setChapters(currentScripture.chapters || []);
+        }
+      }
+    } catch (error) {
+      console.error('重新載入章節錯誤:', error);
     }
   };
 

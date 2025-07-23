@@ -25,7 +25,9 @@ import {
   BulbOutlined
 } from '@ant-design/icons';
 import ThemeManager from './ThemeManager';
-import dataManager from '../../data/dataManager';
+/* global Qs */
+import Request from '../../utils/Request';
+import { getApiUrl } from '../../config';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -55,20 +57,26 @@ const SectionManager = ({
   }, [chapter, visible]);
 
   // 儲存資料
-  const saveChapterData = (updatedSections) => {
-    const scriptures = dataManager.getScripturesArray();
-    const updatedScriptures = scriptures.map(script => {
-      if (script.id === scripture.id) {
-        const updatedChapters = script.chapters.map(chap => 
-          chap.id === chapter.id 
-            ? { ...chap, sections: updatedSections }
-            : chap
-        );
-        return { ...script, chapters: updatedChapters };
+  const saveChapterData = async (updatedSections) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('sections_create'),
+        Qs.stringify({ 
+          chapterId: chapter.id,
+          sections: JSON.stringify(updatedSections)
+        })
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        console.error('儲存小節失敗:', response.data.message);
+        return false;
       }
-      return script;
-    });
-    dataManager.saveScripturesData(updatedScriptures);
+    } catch (error) {
+      console.error('儲存小節錯誤:', error);
+      return false;
+    }
   };
 
   const showSectionModal = (section = null) => {
@@ -114,7 +122,6 @@ const SectionManager = ({
             ? { ...s, ...sectionData }
             : s
         );
-        message.success('小節更新成功！');
       } else {
         // 新增小節
         const newId = `section_${Date.now()}`;
@@ -123,12 +130,16 @@ const SectionManager = ({
           ...sectionData
         };
         updatedSections = [...sections, newSection];
-        message.success('小節新增成功！');
       }
 
-      setSections(updatedSections);
-      saveChapterData(updatedSections);
-      handleSectionModalCancel();
+      const success = await saveChapterData(updatedSections);
+      if (success) {
+        setSections(updatedSections);
+        message.success(editingSection ? '小節更新成功！' : '小節新增成功！');
+        handleSectionModalCancel();
+      } else {
+        message.error('儲存失敗，請稍後再試');
+      }
     } catch (error) {
       console.error('表單驗證失敗:', error);
     }
@@ -188,11 +199,15 @@ const SectionManager = ({
     message.success('主題刪除成功！');
   };
 
-  const handleSectionDelete = (id) => {
+  const handleSectionDelete = async (id) => {
     const updatedSections = sections.filter(s => s.id !== id);
-    setSections(updatedSections);
-    saveChapterData(updatedSections);
-    message.success('小節刪除成功！');
+    const success = await saveChapterData(updatedSections);
+    if (success) {
+      setSections(updatedSections);
+      message.success('小節刪除成功！');
+    } else {
+      message.error('刪除失敗，請稍後再試');
+    }
   };
 
   const showThemeManager = (section) => {
@@ -200,17 +215,27 @@ const SectionManager = ({
     setShowThemeModal(true);
   };
 
-  const handleThemeModalClose = () => {
+  const handleThemeModalClose = async () => {
     setShowThemeModal(false);
     setSelectedSection(null);
     // 重新載入小節資料
-    const scriptures = dataManager.getScripturesArray();
-    const currentScripture = scriptures.find(s => s.id === scripture.id);
-    if (currentScripture) {
-      const currentChapter = currentScripture.chapters.find(c => c.id === chapter.id);
-      if (currentChapter) {
-        setSections(currentChapter.sections || []);
+    try {
+      const response = await Request().post(
+        getApiUrl('getChapterContent'),
+        Qs.stringify({ 
+          scriptureId: scripture.id,
+          chapterId: chapter.id 
+        })
+      );
+      
+      if (response.data.status === 200) {
+        const chapterData = response.data.result;
+        if (chapterData) {
+          setSections(chapterData.sections || []);
+        }
       }
+    } catch (error) {
+      console.error('重新載入小節錯誤:', error);
     }
   };
 

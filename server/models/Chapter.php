@@ -86,17 +86,24 @@ class Chapter {
         }
     }
     
-    // 取得章節的完整結構（包含小節）
+    // 取得章節的完整結構（包含小節和主題）
     public function getStructure($id) {
         $sql = "SELECT 
                     c.id as chapter_id, c.name as chapter_name, c.description as chapter_description,
                     s.id as scripture_id, s.name as scripture_name,
-                    sec.id as section_id, sec.title as section_title, sec.theme as section_theme
+                    sec.id as section_id, sec.title as section_title, sec.theme as section_theme,
+                    sec.outline as section_outline, sec.key_points as section_key_points, 
+                    sec.transcript as section_transcript, sec.youtube_id as section_youtube_id,
+                    sec.order_index as section_order,
+                    t.id as theme_id, t.name as theme_name, t.outline as theme_outline,
+                    t.key_points as theme_key_points, t.transcript as theme_transcript,
+                    t.youtube_id as theme_youtube_id, t.order_index as theme_order
                 FROM chapters c
                 LEFT JOIN scriptures s ON c.scripture_id = s.id
                 LEFT JOIN sections sec ON c.id = sec.chapter_id
+                LEFT JOIN themes t ON sec.id = t.section_id
                 WHERE c.id = ?
-                ORDER BY sec.order_index ASC";
+                ORDER BY sec.order_index ASC, t.order_index ASC";
         return DB::select($sql, array($id));
     }
     

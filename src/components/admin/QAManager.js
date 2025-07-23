@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card,
-  List,
   Button,
   Modal,
   Form,
@@ -22,7 +21,9 @@ import {
   QuestionCircleOutlined,
   MessageOutlined
 } from '@ant-design/icons';
-import dataManager from '../../data/dataManager';
+/* global Qs */
+import Request from '../../utils/Request';
+import { getApiUrl } from '../../config';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -38,23 +39,88 @@ const QAManager = () => {
   // 載入資料
   useEffect(() => {
     loadData();
-    
-    // 訂閱資料變化
-    const unsubscribe = dataManager.subscribe(() => {
-      loadData();
-    });
-    
-    return unsubscribe;
   }, []);
 
-  const loadData = () => {
-    const data = dataManager.getQAData();
-    setQaList(data);
+  const loadData = async () => {
+    try {
+      const response = await Request().post(
+        getApiUrl('qa_getAll'),
+        Qs.stringify({})
+      );
+      
+      if (response.data.status === 200) {
+        setQaList(response.data.result || []);
+      } else {
+        console.error('載入問答失敗:', response.data.message);
+        message.error('載入問答失敗');
+      }
+    } catch (error) {
+      console.error('載入問答錯誤:', error);
+      message.error('載入問答失敗');
+    }
   };
 
-  // 儲存資料
-  const saveData = (data) => {
-    dataManager.saveQAData(data);
+  // 儲存問答資料
+  const saveQA = async (qa) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('qa_create'),
+        Qs.stringify(qa)
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        message.error(response.data.message || '儲存失敗');
+        return false;
+      }
+    } catch (error) {
+      console.error('儲存問答錯誤:', error);
+      message.error('儲存問答失敗');
+      return false;
+    }
+  };
+
+  // 更新問答資料
+  const updateQA = async (id, qa) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('qa_update'),
+        Qs.stringify({ id, ...qa })
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        message.error(response.data.message || '更新失敗');
+        return false;
+      }
+    } catch (error) {
+      console.error('更新問答錯誤:', error);
+      message.error('更新問答失敗');
+      return false;
+    }
+  };
+
+  // 刪除問答資料
+  const deleteQA = async (id) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('qa_delete'),
+        Qs.stringify({ id })
+      );
+      
+      if (response.data.status === 200) {
+        return true;
+      } else {
+        message.error(response.data.message || '刪除失敗');
+        return false;
+      }
+    } catch (error) {
+      console.error('刪除問答錯誤:', error);
+      message.error('刪除問答失敗');
+      return false;
+    }
   };
 
   const showModal = (qa = null) => {
@@ -79,41 +145,41 @@ const QAManager = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      let newQAList;
 
       if (editingQA) {
         // 編輯現有問答
-        newQAList = qaList.map(qa => 
-          qa.id === editingQA.id 
-            ? { ...qa, ...values, tags: values.tags || [] }
-            : qa
-        );
-        message.success('問答更新成功！');
+        const qaData = { ...values, tags: values.tags || [] };
+        const success = await updateQA(editingQA.id, qaData);
+        if (success) {
+          message.success('問答更新成功！');
+          loadData(); // 重新載入資料
+          handleCancel();
+        }
       } else {
         // 新增問答
-        const newId = `qa_${Date.now()}`;
         const newQA = {
-          id: newId,
+          id: `qa_${Date.now()}`,
           ...values,
           tags: values.tags || []
         };
-        newQAList = [...qaList, newQA];
-        message.success('問答新增成功！');
+        const success = await saveQA(newQA);
+        if (success) {
+          message.success('問答新增成功！');
+          loadData(); // 重新載入資料
+          handleCancel();
+        }
       }
-
-      setQaList(newQAList);
-      saveData(newQAList);
-      handleCancel();
     } catch (error) {
       console.error('表單驗證失敗:', error);
     }
   };
 
-  const handleDelete = (id) => {
-    const newQAList = qaList.filter(qa => qa.id !== id);
-    setQaList(newQAList);
-    saveData(newQAList);
-    message.success('問答刪除成功！');
+  const handleDelete = async (id) => {
+    const success = await deleteQA(id);
+    if (success) {
+      message.success('問答刪除成功！');
+      loadData(); // 重新載入資料
+    }
   };
 
   const getCategories = () => {
