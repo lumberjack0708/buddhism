@@ -13,7 +13,7 @@ import { getApiUrl } from '../config';
 const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
 
-const SearchPage = ({ onBackToHome, onChapterSelect }) => {
+const SearchPage = ({ onBackToHome, onChapterSelect, onSectionSelect }) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearched, setIsSearched] = useState(false);
@@ -31,7 +31,7 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
       setSearchKeyword(value);
       
       const response = await Request().post(
-        getApiUrl('scriptures_search'),
+        getApiUrl('sections_search'),
         Qs.stringify({ keyword: value.trim() })
       );
       
@@ -42,13 +42,21 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
           scriptureName: result.scripture_name,
           chapterId: result.chapter_id,
           chapterName: result.chapter_name,
-          sectionId: result.section_id,
-          sectionTitle: result.section_title,
+          sectionId: result.id,
+          sectionTitle: result.title,
+          sectionTheme: result.theme,
+          outline: result.outline || '',
           transcript: result.transcript || '',
-          highlightedTranscript: result.highlighted_transcript || result.transcript || ''
+          sourceType: result.source_type || 'section', // 添加來源類型
+          // 簡單的關鍵字高亮顯示
+          highlightedTranscript: (result.transcript || '').replace(
+            new RegExp(`(${value.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+            '<mark style="background-color: #fff2e6; color: #d46b08; padding: 2px 4px; border-radius: 3px; font-weight: 500;">$1</mark>'
+          )
         }));
         setSearchResults(formattedResults);
         setIsSearched(true);
+        message.success(`找到 ${formattedResults.length} 個相關結果`);
       } else {
         message.error(response.data.message || '搜尋失敗');
         setSearchResults([]);
@@ -65,8 +73,13 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
   };
 
   const handleSectionClick = (result) => {
-    // 跳轉到對應的章節
-    onChapterSelect(result.scriptureId, result.chapterId);
+    // 直接導航到小節學習頁面，無論是小節內容還是主題內容
+    if (onSectionSelect) {
+      onSectionSelect(result.scriptureId, result.chapterId, result.sectionId);
+    } else {
+      // 如果沒有 onSectionSelect，則退回到章節頁面
+      onChapterSelect(result.scriptureId, result.chapterId);
+    }
   };
 
   return (
@@ -173,8 +186,11 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
                       <Tag color="blue" style={{ marginRight: '8px' }}>
                         {result.chapterName}
                       </Tag>
-                      <Tag color="green">
+                      <Tag color="green" style={{ marginRight: '8px' }}>
                         {result.sectionTitle}
+                      </Tag>
+                      <Tag color={result.sourceType === 'theme' ? 'orange' : 'cyan'} style={{ fontSize: '11px' }}>
+                        {result.sourceType === 'theme' ? '主題內容' : '小節內容'}
                       </Tag>
                     </div>
                     
@@ -182,6 +198,14 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
                       <BookOutlined style={{ marginRight: '6px' }} />
                       {result.sectionTitle}
                     </Title>
+                    
+                    {result.sectionTheme && (
+                      <div style={{ marginBottom: '12px' }}>
+                        <Text strong style={{ color: '#fa8c16', fontSize: '14px' }}>
+                          主題：{result.sectionTheme}
+                        </Text>
+                      </div>
+                    )}
                     
                     <div 
                       style={{ 
@@ -200,7 +224,7 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
                     
                     <div style={{ marginTop: '12px', textAlign: 'right' }}>
                       <Button type="link" style={{ padding: 0 }}>
-                        查看完整章節 →
+                        直接進入學習 →
                       </Button>
                     </div>
                   </List.Item>
@@ -235,7 +259,7 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
               • <strong>精確搜尋：</strong>使用完整的詞語或句子可獲得更準確的結果<br/>
               • <strong>關鍵字組合：</strong>可以搜尋「般若波羅蜜多」、「五蘊皆空」等佛法術語<br/>
               • <strong>經典名詞：</strong>搜尋「如是我聞」、「舍利子」、「觀自在菩薩」等<br/>
-              • <strong>點擊結果：</strong>點擊任一搜尋結果可直接跳轉到該章節的完整內容
+              • <strong>直接學習：</strong>點擊任一搜尋結果可直接進入該小節的完整學習內容
             </Paragraph>
           </Card>
         </Col>

@@ -30,14 +30,36 @@ class Section {
     
     // 搜尋小節
     public function search($keyword) {
-        $sql = "SELECT sec.*, c.name as chapter_name, s.name as scripture_name 
-                FROM sections sec 
-                LEFT JOIN chapters c ON sec.chapter_id = c.id 
-                LEFT JOIN scriptures s ON c.scripture_id = s.id 
-                WHERE sec.title LIKE ? OR sec.theme LIKE ? OR sec.outline LIKE ? OR sec.transcript LIKE ?
-                ORDER BY s.order_index ASC, c.order_index ASC, sec.order_index ASC";
         $searchTerm = '%' . $keyword . '%';
-        return DB::select($sql, array($searchTerm, $searchTerm, $searchTerm, $searchTerm));
+        
+        // 搜尋小節內容
+        $sectionSql = "SELECT sec.id, sec.chapter_id, sec.title, sec.theme, sec.outline, sec.key_points, sec.transcript, sec.youtube_id, sec.order_index,
+                              c.name as chapter_name, 
+                              s.id as scripture_id, s.name as scripture_name,
+                              'section' as source_type
+                       FROM sections sec 
+                       LEFT JOIN chapters c ON sec.chapter_id = c.id 
+                       LEFT JOIN scriptures s ON c.scripture_id = s.id 
+                       WHERE sec.title LIKE ? OR sec.theme LIKE ? OR sec.outline LIKE ? OR sec.transcript LIKE ?";
+        
+        // 搜尋主題內容
+        $themeSql = "SELECT sec.id, sec.chapter_id, sec.title, t.name as theme, t.outline, t.key_points, t.transcript, t.youtube_id, sec.order_index,
+                            c.name as chapter_name, 
+                            s.id as scripture_id, s.name as scripture_name,
+                            'theme' as source_type
+                     FROM themes t
+                     LEFT JOIN sections sec ON t.section_id = sec.id
+                     LEFT JOIN chapters c ON sec.chapter_id = c.id 
+                     LEFT JOIN scriptures s ON c.scripture_id = s.id 
+                     WHERE t.name LIKE ? OR t.outline LIKE ? OR t.key_points LIKE ? OR t.transcript LIKE ?";
+        
+        // 合併查詢
+        $sql = "($sectionSql) UNION ($themeSql) ORDER BY scripture_id ASC, chapter_id ASC, order_index ASC";
+        
+        return DB::select($sql, array(
+            $searchTerm, $searchTerm, $searchTerm, $searchTerm, // section 參數
+            $searchTerm, $searchTerm, $searchTerm, $searchTerm  // theme 參數
+        ));
     }
     
     // 新增小節

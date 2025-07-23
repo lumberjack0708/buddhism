@@ -156,7 +156,7 @@ const ChapterPage = ({
                 <Panel
                   header={
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <VideoCameraOutlined style={{ marginRight: '8px', color: '#722ed1' }} />
+                      <VideoCameraOutlined style={{ marginRight: '8px', color: '#FFFAE2' }} />
                       <span style={{ fontWeight: 'bold' }}>{theme.name}</span>
                     </div>
                   }

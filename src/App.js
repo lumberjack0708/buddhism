@@ -196,6 +196,7 @@ function App() {
             <SearchPage 
               onBackToHome={handleBackToHome}
               onChapterSelect={handleChapterSelect}
+              onSectionSelect={handleSectionSelect}
             />
           ) : currentView === 'admin' ? (
             <AdminPage
