@@ -7,7 +7,6 @@ import {
   Row, 
   Col, 
   Alert,
-  Divider,
   Upload,
   message 
 } from 'antd';

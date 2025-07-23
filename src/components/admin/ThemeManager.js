@@ -23,6 +23,7 @@ import {
   FileTextOutlined,
   BulbOutlined
 } from '@ant-design/icons';
+import dataManager from '../../data/dataManager';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -46,34 +47,27 @@ const ThemeManager = ({
     }
   }, [section, visible]);
 
-  // 儲存到 localStorage
+  // 儲存資料
   const saveSectionData = (updatedThemes) => {
-    const savedData = localStorage.getItem('adminScriptures');
-    if (savedData) {
-      try {
-        const allScriptures = JSON.parse(savedData);
-        const updatedScriptures = allScriptures.map(script => {
-          if (script.id === scripture.id) {
-            const updatedChapters = script.chapters.map(chap => {
-              if (chap.id === chapter.id) {
-                const updatedSections = chap.sections.map(sect => 
-                  sect.id === section.id 
-                    ? { ...sect, themes: updatedThemes }
-                    : sect
-                );
-                return { ...chap, sections: updatedSections };
-              }
-              return chap;
-            });
-            return { ...script, chapters: updatedChapters };
+    const scriptures = dataManager.getScripturesArray();
+    const updatedScriptures = scriptures.map(script => {
+      if (script.id === scripture.id) {
+        const updatedChapters = script.chapters.map(chap => {
+          if (chap.id === chapter.id) {
+            const updatedSections = chap.sections.map(sect => 
+              sect.id === section.id 
+                ? { ...sect, themes: updatedThemes }
+                : sect
+            );
+            return { ...chap, sections: updatedSections };
           }
-          return script;
+          return chap;
         });
-        localStorage.setItem('adminScriptures', JSON.stringify(updatedScriptures));
-      } catch (error) {
-        console.error('儲存失敗:', error);
+        return { ...script, chapters: updatedChapters };
       }
-    }
+      return script;
+    });
+    dataManager.saveScripturesData(updatedScriptures);
   };
 
   const showThemeModal = (theme = null) => {

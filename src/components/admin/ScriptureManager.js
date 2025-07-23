@@ -12,8 +12,7 @@ import {
   Space,
   Popconfirm,
   message,
-  Collapse,
-  Tag
+  Collapse
 } from 'antd';
 import {
   PlusOutlined,
@@ -122,14 +121,8 @@ const ScriptureManager = () => {
     setShowChapterModal(false);
     setSelectedScripture(null);
     // 重新載入資料以反映變更
-    const savedData = localStorage.getItem('adminScriptures');
-    if (savedData) {
-      try {
-        setScriptures(JSON.parse(savedData));
-      } catch (error) {
-        console.error('重新載入資料失敗:', error);
-      }
-    }
+    const data = dataManager.getScripturesArray();
+    setScriptures(data);
   };
 
   return (

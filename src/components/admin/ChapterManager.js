@@ -22,6 +22,7 @@ import {
   SettingOutlined
 } from '@ant-design/icons';
 import SectionManager from './SectionManager';
+import dataManager from '../../data/dataManager';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -45,22 +46,15 @@ const ChapterManager = ({
     }
   }, [scripture, visible]);
 
-  // 儲存到 localStorage
+  // 儲存資料
   const saveScriptureData = (updatedChapters) => {
-    const savedData = localStorage.getItem('adminScriptures');
-    if (savedData) {
-      try {
-        const allScriptures = JSON.parse(savedData);
-        const updatedScriptures = allScriptures.map(s => 
-          s.id === scripture.id 
-            ? { ...s, chapters: updatedChapters }
-            : s
-        );
-        localStorage.setItem('adminScriptures', JSON.stringify(updatedScriptures));
-      } catch (error) {
-        console.error('儲存失敗:', error);
-      }
-    }
+    const scriptures = dataManager.getScripturesArray();
+    const updatedScriptures = scriptures.map(s => 
+      s.id === scripture.id 
+        ? { ...s, chapters: updatedChapters }
+        : s
+    );
+    dataManager.saveScripturesData(updatedScriptures);
   };
 
   const showChapterModal = (chapter = null) => {
@@ -128,17 +122,10 @@ const ChapterManager = ({
     setShowSectionModal(false);
     setSelectedChapter(null);
     // 重新載入章節資料
-    const savedData = localStorage.getItem('adminScriptures');
-    if (savedData) {
-      try {
-        const allScriptures = JSON.parse(savedData);
-        const currentScripture = allScriptures.find(s => s.id === scripture.id);
-        if (currentScripture) {
-          setChapters(currentScripture.chapters || []);
-        }
-      } catch (error) {
-        console.error('重新載入資料失敗:', error);
-      }
+    const scriptures = dataManager.getScripturesArray();
+    const currentScripture = scriptures.find(s => s.id === scripture.id);
+    if (currentScripture) {
+      setChapters(currentScripture.chapters || []);
     }
   };
 
