@@ -51,7 +51,39 @@ const ScriptureManager = () => {
       );
       
       if (response.data.status === 200) {
-        setScriptures(response.data.result || []);
+        const scripturesData = response.data.result || [];
+        
+        // 為每個典籍載入章節數量
+        const scripturesWithChapters = await Promise.all(
+          scripturesData.map(async (scripture) => {
+            try {
+              const chaptersResponse = await Request().post(
+                getApiUrl('chapters_getByScriptureId'),
+                Qs.stringify({ scripture_id: scripture.id })
+              );
+              
+              if (chaptersResponse.data.status === 200) {
+                return {
+                  ...scripture,
+                  chapters: chaptersResponse.data.result || []
+                };
+              } else {
+                return {
+                  ...scripture,
+                  chapters: []
+                };
+              }
+            } catch (error) {
+              console.warn(`載入典籍 ${scripture.name} 的章節失敗:`, error);
+              return {
+                ...scripture,
+                chapters: []
+              };
+            }
+          })
+        );
+        
+        setScriptures(scripturesWithChapters);
       } else {
         console.error('載入典籍失敗:', response.data.message);
         message.error('載入典籍失敗');

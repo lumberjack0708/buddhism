@@ -49,7 +49,32 @@ const QAManager = () => {
       );
       
       if (response.data.status === 200) {
-        setQaList(response.data.result || []);
+        // 處理 tags 數據，確保始終是數組格式
+        const processedQAList = (response.data.result || []).map(qa => {
+          let tags = [];
+          
+          if (qa.tags) {
+            if (typeof qa.tags === 'string') {
+              try {
+                tags = JSON.parse(qa.tags);
+                if (!Array.isArray(tags)) {
+                  tags = [];
+                }
+              } catch (error) {
+                console.warn('解析 tags JSON 失敗:', qa.tags, error);
+                tags = [];
+              }
+            } else if (Array.isArray(qa.tags)) {
+              tags = qa.tags;
+            }
+          }
+          
+          return {
+            ...qa,
+            tags
+          };
+        });
+        setQaList(processedQAList);
       } else {
         console.error('載入問答失敗:', response.data.message);
         message.error('載入問答失敗');
@@ -57,15 +82,22 @@ const QAManager = () => {
     } catch (error) {
       console.error('載入問答錯誤:', error);
       message.error('載入問答失敗');
+      setQaList([]);
     }
   };
 
   // 儲存問答資料
   const saveQA = async (qa) => {
     try {
+      // 確保 tags 是 JSON 字符串格式
+      const qaData = {
+        ...qa,
+        tags: JSON.stringify(qa.tags || [])
+      };
+      
       const response = await Request().post(
         getApiUrl('qa_create'),
-        Qs.stringify(qa)
+        Qs.stringify(qaData)
       );
       
       if (response.data.status === 200) {
@@ -84,9 +116,15 @@ const QAManager = () => {
   // 更新問答資料
   const updateQA = async (id, qa) => {
     try {
+      // 確保 tags 是 JSON 字符串格式
+      const qaData = {
+        ...qa,
+        tags: JSON.stringify(qa.tags || [])
+      };
+      
       const response = await Request().post(
         getApiUrl('qa_update'),
-        Qs.stringify({ id, ...qa })
+        Qs.stringify({ id, ...qaData })
       );
       
       if (response.data.status === 200) {
@@ -286,14 +324,14 @@ const QAManager = () => {
                       </Paragraph>
                     </div>
 
-                    {qa.tags && qa.tags.length > 0 && (
+                    {qa.tags && Array.isArray(qa.tags) && qa.tags.length > 0 && (
                       <div>
                         <Title level={5} style={{ color: '#fa8c16', margin: '0 0 8px 0' }}>
                           標籤
                         </Title>
                         <div>
-                          {qa.tags.map(tag => (
-                            <Tag key={tag} color="orange" size="small">
+                          {qa.tags.map((tag, index) => (
+                            <Tag key={`${qa.id}-tag-${index}`} color="orange" size="small">
                               {tag}
                             </Tag>
                           ))}

@@ -44,8 +44,13 @@ const QAPage = ({ onBackToHome }) => {
       
       if (qaResponse.data.status === 200) {
         const qaData = qaResponse.data.result || [];
-        setDisplayedQA(qaData);
-        message.success(`成功載入 ${qaData.length} 個問答`);
+        // 處理 tags JSON 字符串
+        const processedQAData = qaData.map(qa => ({
+          ...qa,
+          tags: qa.tags ? JSON.parse(qa.tags) : []
+        }));
+        setDisplayedQA(processedQAData);
+        message.success(`成功載入 ${processedQAData.length} 個問答`);
       } else {
         message.error(qaResponse.data.message || '載入問答資料失敗');
         setDisplayedQA([]);
@@ -53,7 +58,9 @@ const QAPage = ({ onBackToHome }) => {
       
       if (categoriesResponse.data.status === 200) {
         const categoriesData = categoriesResponse.data.result || [];
-        setCategories(categoriesData);
+        // 提取分類字符串數組
+        const categoryNames = categoriesData.map(item => item.category);
+        setCategories(categoryNames);
       } else {
         console.error('載入分類失敗:', categoriesResponse.data.message);
         setCategories([]);
@@ -83,8 +90,13 @@ const QAPage = ({ onBackToHome }) => {
       
       if (response.data.status === 200) {
         const filteredQA = response.data.result || [];
-        setDisplayedQA(filteredQA);
-        message.success(`找到 ${filteredQA.length} 個相關問答`);
+        // 處理 tags JSON 字符串
+        const processedQA = filteredQA.map(qa => ({
+          ...qa,
+          tags: qa.tags ? JSON.parse(qa.tags) : []
+        }));
+        setDisplayedQA(processedQA);
+        message.success(`找到 ${processedQA.length} 個相關問答`);
       } else {
         message.error(response.data.message || '篩選問答失敗');
         setDisplayedQA([]);
@@ -106,15 +118,20 @@ const QAPage = ({ onBackToHome }) => {
       
       const response = await Request().post(
         getApiUrl('qa_search'),
-        Qs.stringify({ search: value })
+        Qs.stringify({ keyword: value })
       );
       
       console.log('搜尋回應:', response.data);
       
       if (response.data.status === 200) {
         const searchResults = response.data.result || [];
-        setDisplayedQA(searchResults);
-        message.success(`找到 ${searchResults.length} 個搜尋結果`);
+        // 處理 tags JSON 字符串
+        const processedResults = searchResults.map(qa => ({
+          ...qa,
+          tags: qa.tags ? JSON.parse(qa.tags) : []
+        }));
+        setDisplayedQA(processedResults);
+        message.success(`找到 ${processedResults.length} 個搜尋結果`);
       } else {
         message.error(response.data.message || '搜尋問答失敗');
         setDisplayedQA([]);
@@ -133,11 +150,29 @@ const QAPage = ({ onBackToHome }) => {
       setLoading(true);
       setSelectedCategory(null);
       setSearchKeyword('');
-      const qaData = await apiManager.getQAData();
-      setDisplayedQA(qaData);
+      
+      const response = await Request().post(
+        getApiUrl('qa_getAll'),
+        Qs.stringify({})
+      );
+      
+      if (response.data.status === 200) {
+        const qaData = response.data.result || [];
+        // 處理 tags JSON 字符串
+        const processedQAData = qaData.map(qa => ({
+          ...qa,
+          tags: qa.tags ? JSON.parse(qa.tags) : []
+        }));
+        setDisplayedQA(processedQAData);
+        message.success(`重置成功，顯示全部 ${processedQAData.length} 個問答`);
+      } else {
+        message.error(response.data.message || '重置失敗');
+        setDisplayedQA([]);
+      }
     } catch (error) {
       message.error('重置篩選失敗');
       console.error('重置篩選錯誤:', error);
+      setDisplayedQA([]);
     } finally {
       setLoading(false);
     }

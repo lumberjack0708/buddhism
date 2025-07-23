@@ -21,10 +21,8 @@ import {
   EditOutlined,
   DeleteOutlined,
   BookOutlined,
-  SettingOutlined,
   BulbOutlined
 } from '@ant-design/icons';
-import ThemeManager from './ThemeManager';
 /* global Qs */
 import Request from '../../utils/Request';
 import { getApiUrl } from '../../config';
@@ -41,8 +39,6 @@ const SectionManager = ({
   const [sections, setSections] = useState([]);
   const [isSectionModalVisible, setIsSectionModalVisible] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
-  const [showThemeModal, setShowThemeModal] = useState(false);
-  const [selectedSection, setSelectedSection] = useState(null);
   const [sectionThemes, setSectionThemes] = useState([]);
   const [isThemeFormVisible, setIsThemeFormVisible] = useState(false);
   const [editingTheme, setEditingTheme] = useState(null);
@@ -52,30 +48,28 @@ const SectionManager = ({
   // 載入小節資料
   useEffect(() => {
     if (chapter && visible) {
-      setSections(chapter.sections || []);
+      loadSections();
     }
   }, [chapter, visible]);
 
-  // 儲存資料
-  const saveChapterData = async (updatedSections) => {
+  // 載入小節列表
+  const loadSections = async () => {
     try {
       const response = await Request().post(
-        getApiUrl('sections_create'),
-        Qs.stringify({ 
-          chapterId: chapter.id,
-          sections: JSON.stringify(updatedSections)
-        })
+        getApiUrl('sections_getByChapterId'),
+        Qs.stringify({ chapter_id: chapter.id })
       );
       
       if (response.data.status === 200) {
-        return true;
+        setSections(response.data.result || []);
       } else {
-        console.error('儲存小節失敗:', response.data.message);
-        return false;
+        message.error('載入小節失敗: ' + response.data.message);
+        setSections([]);
       }
     } catch (error) {
-      console.error('儲存小節錯誤:', error);
-      return false;
+      console.error('載入小節錯誤:', error);
+      message.error('載入小節失敗');
+      setSections([]);
     }
   };
 
@@ -84,7 +78,7 @@ const SectionManager = ({
     setIsSectionModalVisible(true);
     if (section) {
       form.setFieldsValue(section);
-      setSectionThemes(section.themes || []);
+      loadThemesForSection(section.id);
     } else {
       form.resetFields();
       setSectionThemes([]);
@@ -92,6 +86,27 @@ const SectionManager = ({
     setIsThemeFormVisible(false);
     setEditingTheme(null);
     themeForm.resetFields();
+  };
+
+  // 載入小節的主題列表
+  const loadThemesForSection = async (sectionId) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('themes_getBySectionId'),
+        Qs.stringify({ section_id: sectionId })
+      );
+      
+      if (response.data.status === 200) {
+        setSectionThemes(response.data.result || []);
+      } else {
+        console.error('載入主題失敗:', response.data.message);
+        setSectionThemes([]);
+      }
+    } catch (error) {
+      console.error('載入主題錯誤:', error);
+      setSectionThemes([]);
+    }
+    
   };
 
   const handleSectionModalCancel = () => {
@@ -107,41 +122,60 @@ const SectionManager = ({
   const handleSectionSubmit = async () => {
     try {
       const values = await form.validateFields();
-      let updatedSections;
-
-      // 將主題加入到小節資料中
-      const sectionData = {
-        ...values,
-        themes: sectionThemes
-      };
-
+      
       if (editingSection) {
         // 編輯現有小節
-        updatedSections = sections.map(s => 
-          s.id === editingSection.id 
-            ? { ...s, ...sectionData }
-            : s
+        const response = await Request().post(
+          getApiUrl('sections_update'),
+          Qs.stringify({
+            id: editingSection.id,
+            chapter_id: chapter.id,
+            title: values.title,
+            theme: values.theme || '',
+            outline: '',  // 基本資訊中不包含這些字段
+            key_points: '',
+            transcript: '',
+            youtube_id: '',
+            order_index: 0
+          })
         );
+        
+        if (response.data.status === 200) {
+          message.success('小節更新成功！');
+          loadSections(); // 重新載入小節列表
+          handleSectionModalCancel();
+        } else {
+          message.error('更新失敗: ' + response.data.message);
+        }
       } else {
         // 新增小節
         const newId = `section_${Date.now()}`;
-        const newSection = {
-          id: newId,
-          ...sectionData
-        };
-        updatedSections = [...sections, newSection];
-      }
-
-      const success = await saveChapterData(updatedSections);
-      if (success) {
-        setSections(updatedSections);
-        message.success(editingSection ? '小節更新成功！' : '小節新增成功！');
-        handleSectionModalCancel();
-      } else {
-        message.error('儲存失敗，請稍後再試');
+        const response = await Request().post(
+          getApiUrl('sections_create'),
+          Qs.stringify({
+            id: newId,
+            chapter_id: chapter.id,
+            title: values.title,
+            theme: values.theme || '',
+            outline: '',  // 基本資訊中不包含這些字段
+            key_points: '',
+            transcript: '',
+            youtube_id: '',
+            order_index: 0
+          })
+        );
+        
+        if (response.data.status === 200) {
+          message.success('小節新增成功！');
+          loadSections(); // 重新載入小節列表
+          handleSectionModalCancel();
+        } else {
+          message.error('新增失敗: ' + response.data.message);
+        }
       }
     } catch (error) {
-      console.error('表單驗證失敗:', error);
+      console.error('提交小節錯誤:', error);
+      message.error('操作失敗，請稍後再試');
     }
   };
 
@@ -150,7 +184,15 @@ const SectionManager = ({
     setEditingTheme(theme);
     setIsThemeFormVisible(true);
     if (theme) {
-      themeForm.setFieldsValue(theme);
+      // 映射數據庫字段到表單字段
+      themeForm.setFieldsValue({
+        name: theme.name,
+        outline: theme.outline,
+        keyPoints: theme.key_points,
+        transcript: theme.transcript,
+        youtubeId: theme.youtube_id,
+        order_index: theme.order_index
+      });
     } else {
       themeForm.resetFields();
     }
@@ -165,77 +207,96 @@ const SectionManager = ({
   const handleThemeSubmit = async () => {
     try {
       const values = await themeForm.validateFields();
-      let updatedThemes;
-
+      
       if (editingTheme) {
         // 編輯現有主題
-        updatedThemes = sectionThemes.map(t => 
-          t.id === editingTheme.id 
-            ? { ...t, ...values }
-            : t
+        const response = await Request().post(
+          getApiUrl('themes_update'),
+          Qs.stringify({
+            id: editingTheme.id,
+            section_id: editingSection.id,
+            name: values.name,
+            outline: values.outline || '',
+            key_points: values.keyPoints || '',
+            transcript: values.transcript || '',
+            youtube_id: values.youtubeId || '',
+            order_index: values.order_index ? parseInt(values.order_index) : 0
+          })
         );
-        message.success('主題更新成功！');
+        
+        if (response.data.status === 200) {
+          message.success('主題更新成功！');
+          loadThemesForSection(editingSection.id); // 重新載入主題列表
+          handleThemeFormCancel();
+        } else {
+          message.error('更新主題失敗: ' + response.data.message);
+        }
       } else {
         // 新增主題
         const newId = `theme_${Date.now()}`;
-        const newTheme = {
-          id: newId,
-          ...values
-        };
-        updatedThemes = [...sectionThemes, newTheme];
-        message.success('主題新增成功！');
+        const response = await Request().post(
+          getApiUrl('themes_create'),
+          Qs.stringify({
+            id: newId,
+            section_id: editingSection.id,
+            name: values.name,
+            outline: values.outline || '',
+            key_points: values.keyPoints || '',
+            transcript: values.transcript || '',
+            youtube_id: values.youtubeId || '',
+            order_index: values.order_index ? parseInt(values.order_index) : 0
+          })
+        );
+        
+        if (response.data.status === 200) {
+          message.success('主題新增成功！');
+          loadThemesForSection(editingSection.id); // 重新載入主題列表
+          handleThemeFormCancel();
+        } else {
+          message.error('新增主題失敗: ' + response.data.message);
+        }
       }
-
-      setSectionThemes(updatedThemes);
-      handleThemeFormCancel();
     } catch (error) {
-      console.error('主題表單驗證失敗:', error);
+      console.error('主題操作錯誤:', error);
+      message.error('操作失敗，請稍後再試');
     }
   };
 
-  const handleThemeDelete = (themeId) => {
-    const updatedThemes = sectionThemes.filter(t => t.id !== themeId);
-    setSectionThemes(updatedThemes);
-    message.success('主題刪除成功！');
-  };
-
-  const handleSectionDelete = async (id) => {
-    const updatedSections = sections.filter(s => s.id !== id);
-    const success = await saveChapterData(updatedSections);
-    if (success) {
-      setSections(updatedSections);
-      message.success('小節刪除成功！');
-    } else {
+  const handleThemeDelete = async (theme) => {
+    try {
+      const response = await Request().post(
+        getApiUrl('themes_delete'),
+        Qs.stringify({ id: theme.id })
+      );
+      
+      if (response.data.status === 200) {
+        message.success('主題刪除成功！');
+        loadThemesForSection(editingSection.id); // 重新載入主題列表
+      } else {
+        message.error('刪除主題失敗: ' + response.data.message);
+      }
+    } catch (error) {
+      console.error('刪除主題錯誤:', error);
       message.error('刪除失敗，請稍後再試');
     }
   };
 
-  const showThemeManager = (section) => {
-    setSelectedSection(section);
-    setShowThemeModal(true);
-  };
-
-  const handleThemeModalClose = async () => {
-    setShowThemeModal(false);
-    setSelectedSection(null);
-    // 重新載入小節資料
+  const handleSectionDelete = async (section) => {
     try {
       const response = await Request().post(
-        getApiUrl('getChapterContent'),
-        Qs.stringify({ 
-          scriptureId: scripture.id,
-          chapterId: chapter.id 
-        })
+        getApiUrl('sections_delete'),
+        Qs.stringify({ id: section.id })
       );
       
       if (response.data.status === 200) {
-        const chapterData = response.data.result;
-        if (chapterData) {
-          setSections(chapterData.sections || []);
-        }
+        message.success('小節刪除成功！');
+        loadSections(); // 重新載入小節列表
+      } else {
+        message.error('刪除失敗: ' + response.data.message);
       }
     } catch (error) {
-      console.error('重新載入小節錯誤:', error);
+      console.error('刪除小節錯誤:', error);
+      message.error('刪除失敗，請稍後再試');
     }
   };
 
@@ -292,7 +353,7 @@ const SectionManager = ({
                           />
                           <Popconfirm
                             title="確定要刪除這個小節嗎？"
-                            onConfirm={() => handleSectionDelete(section.id)}
+                            onConfirm={() => handleSectionDelete(section)}
                             okText="確定"
                             cancelText="取消"
                           >
@@ -322,52 +383,15 @@ const SectionManager = ({
                     
                     <div>
                       <Title level={5} style={{ margin: '0 0 8px 0', color: '#1890ff' }}>
-                        主題內容 ({section.themes?.length || 0})
+                        主題內容管理
                       </Title>
-                      {section.themes?.length > 0 ? (
-                        <div>
-                          <Paragraph style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
-                            已建立 {section.themes.length} 個主題
-                          </Paragraph>
-                          {section.themes.slice(0, 2).map((theme, index) => (
-                            <div key={theme.id || index} style={{ 
-                              background: '#f0f8ff',
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              border: '1px solid #91caff',
-                              fontSize: '10px',
-                              marginBottom: '4px',
-                              color: '#1890ff'
-                            }}>
-                              {index + 1}. {theme.name}
-                            </div>
-                          ))}
-                          {section.themes.length > 2 && (
-                            <div style={{ 
-                              fontSize: '10px', 
-                              color: '#999',
-                              textAlign: 'center',
-                              padding: '2px'
-                            }}>
-                              +{section.themes.length - 2} 個更多主題...
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <Paragraph style={{ color: '#999', fontSize: '12px' }}>
-                          尚未新增主題內容
-                        </Paragraph>
-                      )}
+                      <Paragraph style={{ color: '#999', fontSize: '12px' }}>
+                        在編輯模式中可以管理此小節的主題內容
+                      </Paragraph>
                       
-                      <Button 
-                        type="link" 
-                        size="small"
-                        icon={<SettingOutlined />}
-                        onClick={() => showThemeManager(section)}
-                        style={{ marginTop: '4px', padding: 0 }}
-                      >
-                        管理主題內容 →
-                      </Button>
+                      <Paragraph style={{ color: '#666', fontSize: '11px', marginTop: '8px' }}>
+                        💡 點擊編輯按鈕，切換到「主題內容」選項卡管理主題
+                      </Paragraph>
                     </div>
                   </Card>
                 </List.Item>
@@ -395,11 +419,9 @@ const SectionManager = ({
       <Modal
         title={editingSection ? '編輯小節' : '新增小節'}
         open={isSectionModalVisible}
-        onOk={handleSectionSubmit}
         onCancel={handleSectionModalCancel}
+        footer={null}
         width={1200}
-        okText="確定"
-        cancelText="取消"
         style={{ top: 20 }}
       >
         <Tabs
@@ -448,6 +470,17 @@ const SectionManager = ({
                       請切換到「主題內容」選項卡進行編輯
                     </div>
                   </div>
+
+                  <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                    <Space>
+                      <Button onClick={handleSectionModalCancel}>
+                        取消
+                      </Button>
+                      <Button type="primary" onClick={handleSectionSubmit}>
+                        {editingSection ? '更新小節' : '新增小節'}
+                      </Button>
+                    </Space>
+                  </div>
                 </Form>
               )
             },
@@ -481,7 +514,7 @@ const SectionManager = ({
                             />,
                             <Popconfirm
                               title="確定要刪除這個主題嗎？"
-                              onConfirm={() => handleThemeDelete(theme.id)}
+                              onConfirm={() => handleThemeDelete(theme)}
                               okText="確定"
                               cancelText="取消"
                             >
@@ -501,11 +534,11 @@ const SectionManager = ({
                                 <div style={{ marginBottom: '4px' }}>
                                   <strong>綱要：</strong>{theme.outline}
                                 </div>
-                                {theme.youtubeId && (
+                                {theme.youtube_id && (
                                   <div style={{ marginBottom: '4px' }}>
                                     <strong>影片：</strong>
                                     <Tag color="red" size="small">
-                                      {theme.youtubeId}
+                                      {theme.youtube_id}
                                     </Tag>
                                   </div>
                                 )}
@@ -594,19 +627,20 @@ const SectionManager = ({
               placeholder="完整的經文內容"
             />
           </Form.Item>
+
+          <Form.Item
+            name="order_index"
+            label="排序編號"
+            tooltip="數字越小排序越前面，留空則自動排序"
+          >
+            <Input 
+              type="number"
+              placeholder="例如：1, 2, 3..."
+              min="0"
+            />
+          </Form.Item>
         </Form>
       </Modal>
-
-      {/* 主題管理彈窗 */}
-      {selectedSection && (
-        <ThemeManager
-          visible={showThemeModal}
-          onClose={handleThemeModalClose}
-          scripture={scripture}
-          chapter={chapter}
-          section={selectedSection}
-        />
-      )}
     </>
   );
 };
