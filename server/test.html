@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>佛法網站 API 測試</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-section h3 { margin-top: 0; color: #333; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; box-sizing: border-box; }
+        button { background: #007cba; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 3px; }
+        button:hover { background: #005a87; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 3px; white-space: pre-wrap; font-family: monospace; }
+        .get-links { display: flex; flex-wrap: wrap; gap: 10px; }
+        .get-links a { background: #28a745; color: white; padding: 8px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; }
+        .get-links a:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <h1>🕯️ 佛法網站 API 測試工具</h1>
+    
+    <!-- GET 請求測試 -->
+    <div class="test-section">
+        <h3>📋 GET 請求測試（直接點擊測試）</h3>
+        <div class="get-links">
+            <a href="index.php?action=scriptures_getAll" target="_blank">取得所有典籍</a>
+            <a href="index.php?action=chapters_getAll" target="_blank">取得所有章節</a>
+            <a href="index.php?action=sections_getAll" target="_blank">取得所有小節</a>
+            <a href="index.php?action=themes_getAll" target="_blank">取得所有主題</a>
+            <a href="index.php?action=qa_getAll" target="_blank">取得所有問答</a>
+            <a href="index.php?action=qa_getCategories" target="_blank">取得問答分類</a>
+            <a href="index.php?action=qa_getAllTags" target="_blank">取得所有標籤</a>
+            <a href="index.php?action=qa_getRandom" target="_blank">取得隨機問答</a>
+        </div>
+    </div>
+
+    <!-- 典籍測試 -->
+    <div class="test-section">
+        <h3>📚 典籍 API 測試</h3>
+        
+        <h4>🔍 查詢典籍</h4>
+        <form onsubmit="testAPI(event, this)">
+            <input type="hidden" name="action" value="scriptures_getById">
+            <label>典籍 ID:</label>
+            <input type="text" name="id" placeholder="例：heartSutra" required>
+            <button type="submit">查詢典籍</button>
+        </form>
+
+        <h4>➕ 新增典籍</h4>
+        <form onsubmit="testAPI(event, this)">
+            <input type="hidden" name="action" value="scriptures_create">
+            <label>典籍 ID:</label>
+            <input type="text" name="id" placeholder="例：testScripture" required>
+            <label>典籍名稱:</label>
+            <input type="text" name="name" placeholder="例：測試典籍" required>
+            <label>描述:</label>
+            <textarea name="description" placeholder="典籍描述（選填）"></textarea>
+            <button type="submit">新增典籍</button>
+        </form>
+    </div>
+
+    <!-- 問答測試 -->
+    <div class="test-section">
+        <h3>❓ 問答 API 測試</h3>
+        
+        <h4>🔍 搜尋問答</h4>
+        <form onsubmit="testAPI(event, this)">
+            <input type="hidden" name="action" value="qa_search">
+            <label>搜尋關鍵字:</label>
+            <input type="text" name="keyword" placeholder="例：般若" required>
+            <button type="submit">搜尋問答</button>
+        </form>
+
+        <h4>📝 新增問答</h4>
+        <form onsubmit="testAPI(event, this)">
+            <input type="hidden" name="action" value="qa_create">
+            <label>問答 ID:</label>
+            <input type="text" name="id" placeholder="例：test_qa_1" required>
+            <label>分類:</label>
+            <input type="text" name="category" placeholder="例：測試分類" required>
+            <label>問題:</label>
+            <textarea name="question" placeholder="問題內容" required></textarea>
+            <label>答案:</label>
+            <textarea name="answer" placeholder="答案內容" required></textarea>
+            <label>標籤 (JSON 格式):</label>
+            <input type="text" name="tags" placeholder='例：["標籤1", "標籤2"]'>
+            <button type="submit">新增問答</button>
+        </form>
+    </div>
+
+    <!-- 自定義測試 -->
+    <div class="test-section">
+        <h3>🔧 自定義 API 測試</h3>
+        <form onsubmit="testCustomAPI(event)">
+            <label>Action:</label>
+            <select id="customAction">
+                <option value="">選擇或輸入 action</option>
+                <optgroup label="典籍">
+                    <option value="scriptures_getAll">scriptures_getAll</option>
+                    <option value="scriptures_getById">scriptures_getById</option>
+                    <option value="scriptures_search">scriptures_search</option>
+                </optgroup>
+                <optgroup label="章節">
+                    <option value="chapters_getAll">chapters_getAll</option>
+                    <option value="chapters_getByScriptureId">chapters_getByScriptureId</option>
+                </optgroup>
+                <optgroup label="問答">
+                    <option value="qa_getAll">qa_getAll</option>
+                    <option value="qa_getByCategory">qa_getByCategory</option>
+                    <option value="qa_search">qa_search</option>
+                </optgroup>
+            </select>
+            <label>額外參數 (JSON 格式):</label>
+            <textarea id="customParams" placeholder='例：{"id": "heartSutra", "keyword": "般若"}'></textarea>
+            <button type="submit">執行測試</button>
+        </form>
+    </div>
+
+    <!-- 結果顯示 -->
+    <div class="test-section">
+        <h3>📊 測試結果</h3>
+        <div id="result" class="result">等待測試結果...</div>
+    </div>
+
+    <script>
+        function testAPI(event, form) {
+            event.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            fetch('index.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('result').textContent = '錯誤: ' + error.message;
+            });
+        }
+
+        function testCustomAPI(event) {
+            event.preventDefault();
+            
+            const action = document.getElementById('customAction').value;
+            const paramsText = document.getElementById('customParams').value;
+            
+            if (!action) {
+                alert('請選擇或輸入 action');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('action', action);
+            
+            if (paramsText) {
+                try {
+                    const params = JSON.parse(paramsText);
+                    for (const [key, value] of Object.entries(params)) {
+                        formData.append(key, value);
+                    }
+                } catch (e) {
+                    alert('參數 JSON 格式錯誤');
+                    return;
+                }
+            }
+            
+            fetch('index.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('result').textContent = '錯誤: ' + error.message;
+            });
+        }
+    </script>
+</body>
+</html> 

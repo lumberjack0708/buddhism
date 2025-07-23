@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Select, List, Typography, Row, Col, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Select, List, Typography, Row, Col, Button, Spin, message } from 'antd';
 import { BookOutlined, VideoCameraOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import dataManager from '../data/dataManager';
 
@@ -9,13 +9,41 @@ const { Option } = Select;
 const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
   const [selectedScripture, setSelectedScripture] = useState(null);
   const [chapters, setChapters] = useState([]);
+  const [scripturesList, setScripturesList] = useState([]);
+  const [loadingScriptures, setLoadingScriptures] = useState(true);
+  const [loadingChapters, setLoadingChapters] = useState(false);
 
-  const scripturesList = dataManager.getScripturesList();
+  // 載入典籍列表
+  useEffect(() => {
+    loadScriptures();
+  }, []);
 
-  const handleScriptureChange = (scriptureId) => {
-    setSelectedScripture(scriptureId);
-    const chaptersList = dataManager.getChaptersList(scriptureId);
-    setChapters(chaptersList);
+  const loadScriptures = async () => {
+    try {
+      setLoadingScriptures(true);
+      const scriptures = await dataManager.getScripturesList();
+      setScripturesList(scriptures);
+    } catch (error) {
+      message.error('載入典籍列表失敗');
+      console.error('載入典籍列表錯誤:', error);
+    } finally {
+      setLoadingScriptures(false);
+    }
+  };
+
+  const handleScriptureChange = async (scriptureId) => {
+    try {
+      setLoadingChapters(true);
+      setSelectedScripture(scriptureId);
+      const chaptersList = await dataManager.getChaptersList(scriptureId);
+      setChapters(chaptersList);
+    } catch (error) {
+      message.error('載入章節列表失敗');
+      console.error('載入章節列表錯誤:', error);
+      setChapters([]);
+    } finally {
+      setLoadingChapters(false);
+    }
   };
 
   const handleChapterClick = (chapterId) => {
@@ -46,31 +74,34 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
 
         <Col span={24}>
           <Card title="選擇典籍" extra={<BookOutlined />} className="scripture-selector-card">
-            <Select
-              placeholder="請選擇要學習的佛法典籍"
-              style={{ width: '100%', marginBottom: '16px' }}
-              size="large"
-              onChange={handleScriptureChange}
-              value={selectedScripture}
-              optionLabelProp="label"
-            >
-              {scripturesList.map(scripture => (
-                <Option 
-                  key={scripture.value} 
-                  value={scripture.value}
-                  label={scripture.label}
-                >
-                  <div style={{ padding: '4px 0' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
-                      {scripture.label}
+            <Spin spinning={loadingScriptures}>
+              <Select
+                placeholder="請選擇要學習的佛法典籍"
+                style={{ width: '100%', marginBottom: '16px' }}
+                size="large"
+                onChange={handleScriptureChange}
+                value={selectedScripture}
+                optionLabelProp="label"
+                disabled={loadingScriptures}
+              >
+                {scripturesList.map(scripture => (
+                  <Option 
+                    key={scripture.value} 
+                    value={scripture.value}
+                    label={scripture.label}
+                  >
+                    <div style={{ padding: '4px 0' }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
+                        {scripture.label}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                        {scripture.description}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
-                      {scripture.description}
-                    </div>
-                  </div>
-                </Option>
-              ))}
-            </Select>
+                  </Option>
+                ))}
+              </Select>
+            </Spin>
           </Card>
         </Col>
 

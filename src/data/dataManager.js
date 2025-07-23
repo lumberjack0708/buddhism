@@ -1,9 +1,12 @@
-// 資料管理器 - 統一使用 JSON 格式
+// 資料管理器 - 使用 PHP API 
 class DataManager {
   constructor() {
     this.listeners = [];
+    // 修正XAMPP環境下的API路徑
+    this.apiBaseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost/buddhism/api' : '/api';
     this.scripturesCache = null;
     this.qaCache = null;
+    this.isLoading = false;
   }
 
   // 訂閱資料變化
@@ -19,272 +22,302 @@ class DataManager {
     this.listeners.forEach(callback => callback());
   }
 
-  // 載入預設資料
-  async loadDefaultData() {
-    try {
-      // 載入預設典籍資料
-      const scripturesResponse = await fetch('/data/default-scriptures.json');
-      const defaultScriptures = await scripturesResponse.json();
-      
-      // 載入預設問答資料
-      const qaResponse = await fetch('/data/default-qa.json');
-      const defaultQA = await qaResponse.json();
+  // API 請求通用函數
+  async apiRequest(endpoint, options = {}) {
+    const url = `${this.apiBaseUrl}${endpoint}`;
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
 
-      return {
-        scriptures: defaultScriptures,
-        qa: defaultQA
-      };
+    try {
+      const response = await fetch(url, { ...defaultOptions, ...options });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || '請求失敗');
+      }
+
+      return data;
     } catch (error) {
-      console.error('載入預設資料失敗:', error);
-      return {
-        scriptures: [],
-        qa: []
-      };
+      console.error('API 請求錯誤:', error);
+      throw error;
     }
   }
 
-  // 初始化資料（如果 localStorage 沒有資料則載入預設資料）
+  // 初始化資料庫（檢查並載入預設資料）
   async initializeData() {
-    const savedScriptures = localStorage.getItem('adminScriptures');
-    const savedQA = localStorage.getItem('adminQA');
-
-    if (!savedScriptures || !savedQA) {
-      const defaultData = await this.loadDefaultData();
-      
-      if (!savedScriptures && defaultData.scriptures.length > 0) {
-        localStorage.setItem('adminScriptures', JSON.stringify(defaultData.scriptures));
-        this.scripturesCache = null; // 清除快取
-      }
-      
-      if (!savedQA && defaultData.qa.length > 0) {
-        localStorage.setItem('adminQA', JSON.stringify(defaultData.qa));
-        this.qaCache = null; // 清除快取
-      }
-      
+    try {
+      this.isLoading = true;
+      const response = await this.apiRequest('/data/init');
+      console.log('資料庫初始化:', response.message);
+      this.clearCache();
       this.notify();
+    } catch (error) {
+      console.error('初始化資料失敗:', error);
+    } finally {
+      this.isLoading = false;
     }
   }
 
   // 取得典籍資料
-  getScripturesData() {
+  async getScripturesData() {
     if (this.scripturesCache) {
       return this.scripturesCache;
     }
 
-    const savedData = localStorage.getItem('adminScriptures');
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        // 轉換為原有的物件格式以保持相容性
-        const formattedData = {};
-        parsedData.forEach(scripture => {
-          formattedData[scripture.id] = {
-            id: scripture.id,
-            name: scripture.name,
-            description: scripture.description,
-            chapters: {}
-          };
-          
-          if (scripture.chapters && scripture.chapters.length > 0) {
-            scripture.chapters.forEach(chapter => {
-              formattedData[scripture.id].chapters[chapter.id] = chapter;
-            });
-          }
-        });
-        
-        this.scripturesCache = formattedData;
-        return formattedData;
-      } catch (error) {
-        console.error('解析典籍資料失敗:', error);
-        return {};
-      }
+    try {
+      const response = await this.apiRequest('/scriptures');
+      const scriptures = response.data || [];
+      
+      // 轉換為原有的物件格式以保持相容性
+      const formattedData = {};
+      scriptures.forEach(scripture => {
+        formattedData[scripture.id] = {
+          id: scripture.id,
+          name: scripture.name,
+          description: scripture.description,
+          chapters: {}
+        };
+      });
+      
+      this.scripturesCache = formattedData;
+      return formattedData;
+    } catch (error) {
+      console.error('取得典籍資料失敗:', error);
+      return {};
     }
-    return {};
   }
 
   // 取得原始典籍陣列格式（供管理員使用）
-  getScripturesArray() {
-    const savedData = localStorage.getItem('adminScriptures');
-    if (savedData) {
-      try {
-        return JSON.parse(savedData);
-      } catch (error) {
-        console.error('解析典籍資料失敗:', error);
-        return [];
-      }
+  async getScripturesArray() {
+    try {
+      const response = await this.apiRequest('/scriptures');
+      return response.data || [];
+    } catch (error) {
+      console.error('取得典籍陣列失敗:', error);
+      return [];
     }
-    return [];
   }
 
-  // 儲存典籍資料
-  saveScripturesData(scripturesArray) {
+  // 儲存典籍資料（新增）
+  async saveScriptureData(scripture) {
     try {
-      localStorage.setItem('adminScriptures', JSON.stringify(scripturesArray));
-      this.scripturesCache = null; // 清除快取
+      await this.apiRequest('/scriptures', {
+        method: 'POST',
+        body: JSON.stringify(scripture)
+      });
+      this.clearCache();
       this.notify();
       return true;
     } catch (error) {
       console.error('儲存典籍資料失敗:', error);
-      return false;
+      throw error;
+    }
+  }
+
+  // 更新典籍資料
+  async updateScriptureData(id, scripture) {
+    try {
+      await this.apiRequest(`/scriptures/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(scripture)
+      });
+      this.clearCache();
+      this.notify();
+      return true;
+    } catch (error) {
+      console.error('更新典籍資料失敗:', error);
+      throw error;
+    }
+  }
+
+  // 刪除典籍資料
+  async deleteScriptureData(id) {
+    try {
+      await this.apiRequest(`/scriptures/${id}`, {
+        method: 'DELETE'
+      });
+      this.clearCache();
+      this.notify();
+      return true;
+    } catch (error) {
+      console.error('刪除典籍資料失敗:', error);
+      throw error;
     }
   }
 
   // 取得問答資料
-  getQAData() {
-    if (this.qaCache) {
-      return this.qaCache;
-    }
-
-    const savedData = localStorage.getItem('adminQA');
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        this.qaCache = parsedData;
-        return parsedData;
-      } catch (error) {
-        console.error('解析問答資料失敗:', error);
-        return [];
+  async getQAData(category = null, search = null) {
+    try {
+      let endpoint = '/qa';
+      const params = new URLSearchParams();
+      
+      if (category) params.append('category', category);
+      if (search) params.append('search', search);
+      
+      if (params.toString()) {
+        endpoint += '?' + params.toString();
       }
+
+      const response = await this.apiRequest(endpoint);
+      return response.data || [];
+    } catch (error) {
+      console.error('取得問答資料失敗:', error);
+      return [];
     }
-    return [];
   }
 
-  // 儲存問答資料
-  saveQAData(qaArray) {
+  // 儲存問答資料（新增）
+  async saveQAData(qa) {
     try {
-      localStorage.setItem('adminQA', JSON.stringify(qaArray));
-      this.qaCache = null; // 清除快取
+      await this.apiRequest('/qa', {
+        method: 'POST',
+        body: JSON.stringify(qa)
+      });
+      this.clearCache();
       this.notify();
       return true;
     } catch (error) {
       console.error('儲存問答資料失敗:', error);
-      return false;
+      throw error;
+    }
+  }
+
+  // 更新問答資料
+  async updateQAData(id, qa) {
+    try {
+      await this.apiRequest(`/qa/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(qa)
+      });
+      this.clearCache();
+      this.notify();
+      return true;
+    } catch (error) {
+      console.error('更新問答資料失敗:', error);
+      throw error;
+    }
+  }
+
+  // 刪除問答資料
+  async deleteQAData(id) {
+    try {
+      await this.apiRequest(`/qa/${id}`, {
+        method: 'DELETE'
+      });
+      this.clearCache();
+      this.notify();
+      return true;
+    } catch (error) {
+      console.error('刪除問答資料失敗:', error);
+      throw error;
     }
   }
 
   // 取得典籍列表
-  getScripturesList() {
-    const scripturesData = this.getScripturesData();
-    return Object.values(scripturesData).map(scripture => ({
-      value: scripture.id,
-      label: scripture.name,
-      description: scripture.description
-    }));
+  async getScripturesList() {
+    try {
+      const response = await this.apiRequest('/scriptures');
+      const scriptures = response.data || [];
+      
+      return scriptures.map(scripture => ({
+        value: scripture.id,
+        label: scripture.name,
+        description: scripture.description
+      }));
+    } catch (error) {
+      console.error('取得典籍列表失敗:', error);
+      return [];
+    }
   }
 
   // 根據典籍ID取得章節列表
-  getChaptersList(scriptureId) {
-    const scripturesData = this.getScripturesData();
-    const scripture = scripturesData[scriptureId];
-    if (!scripture) return [];
-    
-    return Object.values(scripture.chapters || {}).map(chapter => ({
-      id: chapter.id,
-      name: chapter.name,
-      description: chapter.description
-    }));
+  async getChaptersList(scriptureId) {
+    try {
+      const response = await this.apiRequest(`/scriptures/${scriptureId}/chapters`);
+      const chapters = response.data || [];
+      
+      return chapters.map(chapter => ({
+        id: chapter.id,
+        name: chapter.name,
+        description: chapter.description
+      }));
+    } catch (error) {
+      console.error('取得章節列表失敗:', error);
+      return [];
+    }
   }
 
   // 根據典籍ID和章節ID取得章節內容
-  getChapterContent(scriptureId, chapterId) {
-    const scripturesData = this.getScripturesData();
-    const scripture = scripturesData[scriptureId];
-    if (!scripture || !scripture.chapters[chapterId]) return null;
-    
-    return scripture.chapters[chapterId];
+  async getChapterContent(scriptureId, chapterId) {
+    try {
+      const response = await this.apiRequest(`/scriptures/${scriptureId}/chapters/${chapterId}`);
+      return response.data || null;
+    } catch (error) {
+      console.error('取得章節內容失敗:', error);
+      return null;
+    }
   }
 
   // 搜尋經文內容
-  searchScriptures(keyword) {
+  async searchScriptures(keyword) {
     if (!keyword) return [];
     
-    const results = [];
-    const lowerKeyword = keyword.toLowerCase();
-    const scripturesData = this.getScripturesData();
-    
-    Object.values(scripturesData).forEach(scripture => {
-      Object.values(scripture.chapters || {}).forEach(chapter => {
-        (chapter.sections || []).forEach(section => {
-          // 搜尋 transcript 內容
-          const transcript = section.themes ? 
-            section.themes[0]?.transcript || section.transcript : 
-            section.transcript;
-          
-          if (transcript && transcript.toLowerCase().includes(lowerKeyword)) {
-            results.push({
-              scriptureId: scripture.id,
-              scriptureName: scripture.name,
-              chapterId: chapter.id,
-              chapterName: chapter.name,
-              sectionId: section.id,
-              sectionTitle: section.title,
-              transcript: transcript,
-              highlightedTranscript: (transcript || '')
-                .replace(/\n/g, '<br/>')
-                .replace(
-                  new RegExp(`(${keyword})`, 'gi'),
-                  '<mark>$1</mark>'
-                )
-            });
-          }
-          
-          // 也搜尋小節標題和綱要
-          const outline = section.themes ? 
-            section.themes[0]?.outline || section.outline : 
-            section.outline;
-          
-          if (section.title.toLowerCase().includes(lowerKeyword) || 
-              (outline && outline.toLowerCase().includes(lowerKeyword))) {
-            const exists = results.some(r => 
-              r.scriptureId === scripture.id && 
-              r.chapterId === chapter.id && 
-              r.sectionId === section.id
-            );
-            
-            if (!exists) {
-              results.push({
-                scriptureId: scripture.id,
-                scriptureName: scripture.name,
-                chapterId: chapter.id,
-                chapterName: chapter.name,
-                sectionId: section.id,
-                sectionTitle: section.title,
-                transcript: transcript || '',
-                highlightedTranscript: transcript || ''
-              });
-            }
-          }
-        });
-      });
-    });
-    
-    return results;
+    try {
+      const response = await this.apiRequest(`/search?keyword=${encodeURIComponent(keyword)}&type=scriptures`);
+      const results = response.data || [];
+      
+      return results.map(result => ({
+        scriptureId: result.scripture_id,
+        scriptureName: result.scripture_name,
+        chapterId: result.chapter_id,
+        chapterName: result.chapter_name,
+        sectionId: result.section_id,
+        sectionTitle: result.section_title,
+        transcript: result.transcript || '',
+        highlightedTranscript: result.highlighted_transcript || result.transcript || ''
+      }));
+    } catch (error) {
+      console.error('搜尋經文失敗:', error);
+      return [];
+    }
   }
 
   // 取得問答分類
-  getQACategories() {
-    const qaData = this.getQAData();
-    const categories = [...new Set(qaData.map(item => item.category))];
-    return categories;
+  async getQACategories() {
+    try {
+      const response = await this.apiRequest('/qa/categories');
+      return response.data || [];
+    } catch (error) {
+      console.error('取得問答分類失敗:', error);
+      return [];
+    }
   }
 
   // 根據分類篩選問答
-  getQAByCategory(category) {
-    const qaData = this.getQAData();
-    if (!category) return qaData;
-    return qaData.filter(item => item.category === category);
+  async getQAByCategory(category) {
+    try {
+      return await this.getQAData(category);
+    } catch (error) {
+      console.error('根據分類篩選問答失敗:', error);
+      return [];
+    }
   }
 
   // 搜尋問答內容
-  searchQA(keyword) {
-    const qaData = this.getQAData();
-    if (!keyword) return qaData;
-    const lowerKeyword = keyword.toLowerCase();
-    return qaData.filter(item => 
-      item.question.toLowerCase().includes(lowerKeyword) ||
-      item.answer.toLowerCase().includes(lowerKeyword) ||
-      item.tags.some(tag => tag.toLowerCase().includes(lowerKeyword))
-    );
+  async searchQA(keyword) {
+    if (!keyword) {
+      return await this.getQAData();
+    }
+    
+    try {
+      return await this.getQAData(null, keyword);
+    } catch (error) {
+      console.error('搜尋問答失敗:', error);
+      return [];
+    }
   }
 
   // 清除所有快取
@@ -295,15 +328,75 @@ class DataManager {
 
   // 重設為預設資料
   async resetToDefault() {
-    const defaultData = await this.loadDefaultData();
-    
-    localStorage.setItem('adminScriptures', JSON.stringify(defaultData.scriptures));
-    localStorage.setItem('adminQA', JSON.stringify(defaultData.qa));
-    
-    this.clearCache();
-    this.notify();
-    
-    return true;
+    try {
+      await this.apiRequest('/data/reset', {
+        method: 'POST'
+      });
+      this.clearCache();
+      this.notify();
+      return true;
+    } catch (error) {
+      console.error('重設資料失敗:', error);
+      throw error;
+    }
+  }
+
+  // 匯出所有資料
+  async exportAllData() {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/data/export`);
+      
+      if (!response.ok) {
+        throw new Error('匯出失敗');
+      }
+
+      // 取得檔案名稱
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition 
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') 
+        : 'buddhism_data.json';
+
+      // 下載檔案
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      return true;
+    } catch (error) {
+      console.error('匯出資料失敗:', error);
+      throw error;
+    }
+  }
+
+  // 匯入資料
+  async importData(file) {
+    try {
+      const fileContent = await file.text();
+      const data = JSON.parse(fileContent);
+
+      await this.apiRequest('/data/import', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+
+      this.clearCache();
+      this.notify();
+      return { success: true, message: '資料匯入成功！' };
+    } catch (error) {
+      console.error('匯入資料失敗:', error);
+      return { success: false, message: `匯入失敗: ${error.message}` };
+    }
+  }
+
+  // 檢查載入狀態
+  isDataLoading() {
+    return this.isLoading;
   }
 }
 

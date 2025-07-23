@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Collapse, Typography, Row, Col, Select, Tag, Button, Input } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Collapse, Typography, Row, Col, Select, Tag, Button, Input, Spin, message } from 'antd';
 import { 
   ArrowLeftOutlined, 
   QuestionCircleOutlined,
@@ -17,28 +17,75 @@ const { Search } = Input;
 const QAPage = ({ onBackToHome }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [displayedQA, setDisplayedQA] = useState(dataManager.getQAData());
+  const [displayedQA, setDisplayedQA] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = dataManager.getQACategories();
+  // 初始載入資料
+  useEffect(() => {
+    loadInitialData();
+  }, []);
 
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    setSearchKeyword('');
-    const filteredQA = dataManager.getQAByCategory(category);
-    setDisplayedQA(filteredQA);
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      const [qaData, categoriesData] = await Promise.all([
+        dataManager.getQAData(),
+        dataManager.getQACategories()
+      ]);
+      setDisplayedQA(qaData);
+      setCategories(categoriesData);
+    } catch (error) {
+      message.error('載入問答資料失敗');
+      console.error('載入問答資料錯誤:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSearch = (value) => {
-    setSearchKeyword(value);
-    setSelectedCategory(null);
-    const searchResults = dataManager.searchQA(value);
-    setDisplayedQA(searchResults);
+  const handleCategoryChange = async (category) => {
+    try {
+      setLoading(true);
+      setSelectedCategory(category);
+      setSearchKeyword('');
+      const filteredQA = await dataManager.getQAByCategory(category);
+      setDisplayedQA(filteredQA);
+    } catch (error) {
+      message.error('篩選問答失敗');
+      console.error('篩選問答錯誤:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReset = () => {
-    setSelectedCategory(null);
-    setSearchKeyword('');
-    setDisplayedQA(dataManager.getQAData());
+  const handleSearch = async (value) => {
+    try {
+      setLoading(true);
+      setSearchKeyword(value);
+      setSelectedCategory(null);
+      const searchResults = await dataManager.searchQA(value);
+      setDisplayedQA(searchResults);
+    } catch (error) {
+      message.error('搜尋問答失敗');
+      console.error('搜尋問答錯誤:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      setLoading(true);
+      setSelectedCategory(null);
+      setSearchKeyword('');
+      const qaData = await dataManager.getQAData();
+      setDisplayedQA(qaData);
+    } catch (error) {
+      message.error('重置篩選失敗');
+      console.error('重置篩選錯誤:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -121,7 +168,8 @@ const QAPage = ({ onBackToHome }) => {
               </span>
             }
           >
-            {displayedQA.length > 0 ? (
+            <Spin spinning={loading}>
+              {displayedQA.length > 0 ? (
               <Collapse 
                 size="large"
                 expandIconPosition="right"
@@ -180,7 +228,7 @@ const QAPage = ({ onBackToHome }) => {
                   </Panel>
                 ))}
               </Collapse>
-            ) : (
+            ) : !loading && (
               <div style={{ textAlign: 'center', padding: '40px' }}>
                 <QuestionCircleOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
                 <Title level={4} style={{ color: '#999' }}>
@@ -191,6 +239,7 @@ const QAPage = ({ onBackToHome }) => {
                 </Paragraph>
               </div>
             )}
+            </Spin>
           </Card>
         </Col>
 

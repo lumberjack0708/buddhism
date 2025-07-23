@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Typography, Row, Col, Button, Input, List, Tag, Empty } from 'antd';
+import { Card, Typography, Row, Col, Button, Input, List, Tag, Empty, Spin, message } from 'antd';
 import { 
   ArrowLeftOutlined, 
   SearchOutlined,
@@ -15,18 +15,27 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearched, setIsSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (value) => {
+  const handleSearch = async (value) => {
     if (!value.trim()) {
       setSearchResults([]);
       setIsSearched(false);
       return;
     }
     
-    setSearchKeyword(value);
-    const results = dataManager.searchScriptures(value.trim());
-    setSearchResults(results);
-    setIsSearched(true);
+    try {
+      setLoading(true);
+      setSearchKeyword(value);
+      const results = await dataManager.searchScriptures(value.trim());
+      setSearchResults(results);
+      setIsSearched(true);
+    } catch (error) {
+      message.error('搜尋失敗');
+      console.error('搜尋錯誤:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSectionClick = (result) => {
@@ -95,17 +104,18 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
               </span>
             }
           >
-            {!isSearched ? (
-              <div style={{ textAlign: 'center', padding: '40px' }}>
-                <SearchOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
-                <Title level={4} style={{ color: '#999' }}>
-                  請輸入關鍵字開始搜尋
-                </Title>
-                <Paragraph style={{ color: '#666' }}>
-                  您可以搜尋任何佛法經典中的文字內容
-                </Paragraph>
-              </div>
-            ) : searchResults.length > 0 ? (
+            <Spin spinning={loading}>
+              {!isSearched ? (
+                <div style={{ textAlign: 'center', padding: '40px' }}>
+                  <SearchOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
+                  <Title level={4} style={{ color: '#999' }}>
+                    請輸入關鍵字開始搜尋
+                  </Title>
+                  <Paragraph style={{ color: '#666' }}>
+                    您可以搜尋任何佛法經典中的文字內容
+                  </Paragraph>
+                </div>
+              ) : searchResults.length > 0 ? (
               <List
                 itemLayout="vertical"
                 dataSource={searchResults}
@@ -185,6 +195,7 @@ const SearchPage = ({ onBackToHome, onChapterSelect }) => {
                 }
               />
             )}
+            </Spin>
           </Card>
         </Col>
 

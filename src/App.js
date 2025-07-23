@@ -25,28 +25,35 @@ function App() {
     const unsubscribe = dataManager.subscribe(() => {
       // 資料變化時重新載入當前章節（如果有的話）
       if (selectedScripture && selectedChapter) {
-        const chapterContent = dataManager.getChapterContent(selectedScripture, selectedChapter);
-        setChapterData(chapterContent);
+        loadChapterContent(selectedScripture, selectedChapter);
       }
     });
     return unsubscribe;
   }, [selectedScripture, selectedChapter]);
 
-  const handleChapterSelect = (scriptureId, chapterId) => {
-    const chapterContent = dataManager.getChapterContent(scriptureId, chapterId);
-    setSelectedScripture(scriptureId);
-    setSelectedChapter(chapterId);
-    setChapterData(chapterContent);
-    setCurrentView('chapterDetail');
+  const loadChapterContent = async (scriptureId, chapterId) => {
+    try {
+      const chapterContent = await dataManager.getChapterContent(scriptureId, chapterId);
+      setChapterData(chapterContent);
+    } catch (error) {
+      console.error('載入章節內容錯誤:', error);
+      setChapterData(null);
+    }
   };
 
-  const handleSectionSelect = (scriptureId, chapterId, sectionId) => {
-    const chapterContent = dataManager.getChapterContent(scriptureId, chapterId);
+  const handleChapterSelect = async (scriptureId, chapterId) => {
+    setSelectedScripture(scriptureId);
+    setSelectedChapter(chapterId);
+    setCurrentView('chapterDetail');
+    await loadChapterContent(scriptureId, chapterId);
+  };
+
+  const handleSectionSelect = async (scriptureId, chapterId, sectionId) => {
     setSelectedScripture(scriptureId);
     setSelectedChapter(chapterId);
     setSelectedSection(sectionId);
-    setChapterData(chapterContent);
     setCurrentView('section');
+    await loadChapterContent(scriptureId, chapterId);
   };
 
   const handleBackToHome = () => {
