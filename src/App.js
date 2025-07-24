@@ -41,7 +41,7 @@ function App() {
         Qs.stringify({ id: chapterId })
       );
       
-      console.log('章節結構回應:', response.data);
+
       
       if (response.data.status === 200) {
         const structureData = response.data.result || [];

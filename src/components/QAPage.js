@@ -39,8 +39,7 @@ const QAPage = ({ onBackToHome }) => {
         Request().post(getApiUrl('qa_getCategories'), Qs.stringify({}))
       ]);
       
-      console.log('問答資料回應:', qaResponse.data);
-      console.log('分類資料回應:', categoriesResponse.data);
+
       
       if (qaResponse.data.status === 200) {
         const qaData = qaResponse.data.result || [];
@@ -86,7 +85,7 @@ const QAPage = ({ onBackToHome }) => {
         Qs.stringify({ category })
       );
       
-      console.log('分類篩選回應:', response.data);
+
       
       if (response.data.status === 200) {
         const filteredQA = response.data.result || [];
@@ -121,7 +120,7 @@ const QAPage = ({ onBackToHome }) => {
         Qs.stringify({ keyword: value })
       );
       
-      console.log('搜尋回應:', response.data);
+
       
       if (response.data.status === 200) {
         const searchResults = response.data.result || [];

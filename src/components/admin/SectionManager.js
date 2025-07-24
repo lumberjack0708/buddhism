@@ -388,10 +388,6 @@ const SectionManager = ({
                       <Paragraph style={{ color: '#999', fontSize: '12px' }}>
                         在編輯模式中可以管理此小節的主題內容
                       </Paragraph>
-                      
-                      <Paragraph style={{ color: '#666', fontSize: '11px', marginTop: '8px' }}>
-                        💡 點擊編輯按鈕，切換到「主題內容」選項卡管理主題
-                      </Paragraph>
                     </div>
                   </Card>
                 </List.Item>
@@ -463,7 +459,8 @@ const SectionManager = ({
                     textAlign: 'center'
                   }}>
                     <div style={{ color: '#1677ff', marginBottom: '8px' }}>
-                      💡 <strong>提示</strong>
+                        <BulbOutlined style={{ color: '#1677ff' }} /> 
+                        <strong>提示</strong>
                     </div>
                     <div style={{ color: '#666', fontSize: '14px' }}>
                       詳細的綱要、重點說明、經文內容和影片連結<br/>

@@ -387,77 +387,7 @@ class ApiManager {
     }
   }
 
-  // 重設為預設資料
-  async resetToDefault() {
-    try {
-      const response = await Request().post(
-        getApiUrl('resetData'),
-        Qs.stringify({})
-      );
-      
-      if (response.data.status === 200) {
-        this.clearCache();
-        this.notify();
-        return true;
-      } else {
-        throw new Error(response.data.message || '重設資料失敗');
-      }
-    } catch (error) {
-      console.error('重設資料失敗:', error);
-      throw error;
-    }
-  }
 
-  // 匯出所有資料
-  async exportAllData() {
-    try {
-      const response = await Request().post(
-        getApiUrl('exportData'),
-        Qs.stringify({}),
-        { responseType: 'blob' }  // 處理二進位資料
-      );
-      
-      // 創建下載連結
-      const blob = new Blob([response.data], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `buddhism_data_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      return true;
-    } catch (error) {
-      console.error('匯出資料失敗:', error);
-      throw error;
-    }
-  }
-
-  // 匯入資料
-  async importData(file) {
-    try {
-      const fileContent = await file.text();
-      const data = JSON.parse(fileContent);
-
-      const response = await Request().post(
-        getApiUrl('importData'),
-        Qs.stringify({ data: JSON.stringify(data) })
-      );
-      
-      if (response.data.status === 200) {
-        this.clearCache();
-        this.notify();
-        return { success: true, message: '資料匯入成功！' };
-      } else {
-        return { success: false, message: response.data.message || '匯入失敗' };
-      }
-    } catch (error) {
-      console.error('匯入資料失敗:', error);
-      return { success: false, message: `匯入失敗: ${error.message}` };
-    }
-  }
 
   // 檢查載入狀態
   isDataLoading() {

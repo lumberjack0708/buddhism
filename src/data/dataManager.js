@@ -51,7 +51,7 @@ class DataManager {
     try {
       this.isLoading = true;
       const response = await this.apiRequest('/data/init');
-      console.log('資料庫初始化:', response.message);
+
       this.clearCache();
       this.notify();
     } catch (error) {
@@ -341,58 +341,7 @@ class DataManager {
     }
   }
 
-  // 匯出所有資料
-  async exportAllData() {
-    try {
-      const response = await fetch(`${this.apiBaseUrl}/data/export`);
-      
-      if (!response.ok) {
-        throw new Error('匯出失敗');
-      }
 
-      // 取得檔案名稱
-      const contentDisposition = response.headers.get('Content-Disposition');
-      const filename = contentDisposition 
-        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') 
-        : 'buddhism_data.json';
-
-      // 下載檔案
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      return true;
-    } catch (error) {
-      console.error('匯出資料失敗:', error);
-      throw error;
-    }
-  }
-
-  // 匯入資料
-  async importData(file) {
-    try {
-      const fileContent = await file.text();
-      const data = JSON.parse(fileContent);
-
-      await this.apiRequest('/data/import', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
-
-      this.clearCache();
-      this.notify();
-      return { success: true, message: '資料匯入成功！' };
-    } catch (error) {
-      console.error('匯入資料失敗:', error);
-      return { success: false, message: `匯入失敗: ${error.message}` };
-    }
-  }
 
   // 檢查載入狀態
   isDataLoading() {

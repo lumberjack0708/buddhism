@@ -89,11 +89,7 @@ npm start
 ### 搜尋功能
 - `GET /api/search?keyword={keyword}&type={type}` - 搜尋內容
 
-### 數據管理
-- `GET /api/data/export` - 匯出所有數據
-- `POST /api/data/import` - 匯入數據
-- `POST /api/data/reset` - 重設為預設數據
-- `GET /api/data/init` - 初始化檢查
+
 
 ## 主要功能
 
@@ -120,8 +116,6 @@ npm start
 ### 5. 管理員後台
 - 典籍內容管理
 - 問答內容管理
-- 數據匯出入功能
-- 系統設置
 
 ## 技術特色
 
@@ -158,7 +152,6 @@ npm test
 
 ### 數據庫遷移
 - 執行 `api/database/schema.sql` 更新數據庫結構
-- 使用管理後台的匯出入功能遷移數據
 
 ## 疑難排解
 

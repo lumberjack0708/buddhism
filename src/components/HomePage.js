@@ -29,7 +29,7 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
         Qs.stringify({})
       );
       
-      console.log('典籍列表回應:', response.data);
+
       
       if (response.data.status === 200) {
         const scriptures = response.data.result || [];
@@ -63,7 +63,7 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
         Qs.stringify({ scripture_id: scriptureId })
       );
       
-      console.log('章節列表回應:', response.data);
+
       
       if (response.data.status === 200) {
         const chapters = response.data.result || [];
