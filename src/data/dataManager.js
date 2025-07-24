@@ -50,7 +50,7 @@ class DataManager {
   async initializeData() {
     try {
       this.isLoading = true;
-      const response = await this.apiRequest('/data/init');
+      await this.apiRequest('/data/init');
 
       this.clearCache();
       this.notify();

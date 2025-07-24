@@ -10,7 +10,6 @@ import {
 } from '@ant-design/icons';
 import Request from '../utils/Request';
 import { getApiUrl } from '../config';
-import apiManager from '../utils/apiManager';
 
 const { Title, Paragraph, Text } = Typography;
 const { Panel } = Collapse;
