@@ -33,7 +33,7 @@ class Section {
         $searchTerm = '%' . $keyword . '%';
         
         // 搜尋小節內容
-        $sectionSql = "SELECT sec.id, sec.chapter_id, sec.title, sec.theme, sec.outline, sec.key_points, sec.transcript, sec.youtube_id, sec.order_index,
+        $sectionSql = "SELECT sec.id, sec.chapter_id, sec.title, sec.theme, sec.outline, sec.key_points, sec.transcript, NULL as verbatim_transcript, sec.youtube_id, sec.order_index,
                               c.name as chapter_name, 
                               s.id as scripture_id, s.name as scripture_name,
                               'section' as source_type
@@ -42,8 +42,8 @@ class Section {
                        LEFT JOIN scriptures s ON c.scripture_id = s.id 
                        WHERE sec.title LIKE ? OR sec.theme LIKE ? OR sec.outline LIKE ? OR sec.transcript LIKE ?";
         
-        // 搜尋主題內容
-        $themeSql = "SELECT sec.id, sec.chapter_id, sec.title, t.name as theme, t.outline, t.key_points, t.transcript, t.youtube_id, sec.order_index,
+        // 搜尋主題內容（逐字稿）
+        $themeSql = "SELECT sec.id, sec.chapter_id, sec.title, t.name as theme, t.outline, t.key_points, t.transcript, t.verbatim_transcript, t.youtube_id, sec.order_index,
                             c.name as chapter_name, 
                             s.id as scripture_id, s.name as scripture_name,
                             'theme' as source_type
@@ -51,14 +51,14 @@ class Section {
                      LEFT JOIN sections sec ON t.section_id = sec.id
                      LEFT JOIN chapters c ON sec.chapter_id = c.id 
                      LEFT JOIN scriptures s ON c.scripture_id = s.id 
-                     WHERE t.name LIKE ? OR t.outline LIKE ? OR t.key_points LIKE ? OR t.transcript LIKE ?";
+                     WHERE t.name LIKE ? OR t.outline LIKE ? OR t.key_points LIKE ? OR t.transcript LIKE ? OR t.verbatim_transcript LIKE ?";
         
         // 合併查詢
         $sql = "($sectionSql) UNION ($themeSql) ORDER BY scripture_id ASC, chapter_id ASC, order_index ASC";
         
         return DB::select($sql, array(
             $searchTerm, $searchTerm, $searchTerm, $searchTerm, // section 參數
-            $searchTerm, $searchTerm, $searchTerm, $searchTerm  // theme 參數
+            $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm  // theme 參數（包含 verbatim_transcript）
         ));
     }
     
