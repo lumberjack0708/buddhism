@@ -126,7 +126,10 @@ class Section {
                     sec.*, 
                     c.name as chapter_name, 
                     s.name as scripture_name,
-                    t.id as theme_id, t.name as theme_name, t.outline as theme_outline
+                    t.id as theme_id, t.name as theme_name, t.outline as theme_outline,
+                    t.key_points as theme_key_points, t.transcript as theme_transcript,
+                    t.verbatim_transcript as theme_verbatim_transcript, t.youtube_id as theme_youtube_id,
+                    t.order_index as theme_order
                 FROM sections sec
                 LEFT JOIN chapters c ON sec.chapter_id = c.id
                 LEFT JOIN scriptures s ON c.scripture_id = s.id

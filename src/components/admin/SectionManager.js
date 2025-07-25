@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Modal,
   Card,
@@ -45,15 +45,7 @@ const SectionManager = ({
   const [form] = Form.useForm();
   const [themeForm] = Form.useForm();
 
-  // 載入小節資料
-  useEffect(() => {
-    if (chapter && visible) {
-      loadSections();
-    }
-  }, [chapter, visible]);
-
-  // 載入小節列表
-  const loadSections = async () => {
+  const loadSections = useCallback(async () => {
     try {
       const response = await Request().post(
         getApiUrl('sections_getByChapterId'),
@@ -71,7 +63,14 @@ const SectionManager = ({
       message.error('載入小節失敗');
       setSections([]);
     }
-  };
+  }, [chapter]);
+
+  // 載入小節列表
+  useEffect(() => {
+    if (chapter && visible) {
+      loadSections();
+    }
+  }, [chapter, visible, loadSections]);
 
   const showSectionModal = (section = null) => {
     setEditingSection(section);
@@ -190,6 +189,7 @@ const SectionManager = ({
         outline: theme.outline,
         keyPoints: theme.key_points,
         transcript: theme.transcript,
+        verbatimTranscript: theme.verbatim_transcript,
         youtubeId: theme.youtube_id,
         order_index: theme.order_index
       });
@@ -219,6 +219,7 @@ const SectionManager = ({
             outline: values.outline || '',
             key_points: values.keyPoints || '',
             transcript: values.transcript || '',
+            verbatim_transcript: values.verbatimTranscript || '',
             youtube_id: values.youtubeId || '',
             order_index: values.order_index ? parseInt(values.order_index) : 0
           })
@@ -243,6 +244,7 @@ const SectionManager = ({
             outline: values.outline || '',
             key_points: values.keyPoints || '',
             transcript: values.transcript || '',
+            verbatim_transcript: values.verbatimTranscript || '',
             youtube_id: values.youtubeId || '',
             order_index: values.order_index ? parseInt(values.order_index) : 0
           })
@@ -539,6 +541,18 @@ const SectionManager = ({
                                     </Tag>
                                   </div>
                                 )}
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                  {theme.transcript && (
+                                    <Tag color="green" size="small">
+                                      <strong>經文內容：</strong>已填寫
+                                    </Tag>
+                                  )}
+                                  {theme.verbatim_transcript && (
+                                    <Tag color="purple" size="small">
+                                      <strong>逐字稿：</strong>已填寫
+                                    </Tag>
+                                  )}
+                                </div>
                               </div>
                             }
                           />
@@ -620,8 +634,19 @@ const SectionManager = ({
             rules={[{ required: true, message: '請輸入經文內容' }]}
           >
             <TextArea 
-              rows={6}
+              rows={5}
               placeholder="完整的經文內容"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="verbatimTranscript"
+            label="逐字稿 (選填)"
+            extra="詳細的逐字稿內容，包含完整的講解和對話記錄"
+          >
+            <TextArea 
+              rows={6}
+              placeholder="逐字稿內容，可包含詳細的講解、問答、補充說明等 (選填)"
             />
           </Form.Item>
 

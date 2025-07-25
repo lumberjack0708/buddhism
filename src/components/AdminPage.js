@@ -9,14 +9,15 @@ import {
   ArrowLeftOutlined,
   BookOutlined, 
   QuestionCircleOutlined,
-  DatabaseOutlined
+  DatabaseOutlined,
+  LogoutOutlined
 } from '@ant-design/icons';
 import ScriptureManager from './admin/ScriptureManager';
 import QAManager from './admin/QAManager';
 
 const { Title, Paragraph } = Typography;
 
-const AdminPage = ({ onBackToHome }) => {
+const AdminPage = ({ onBackToHome, onLogout, isLoggedIn }) => {
   const [activeTab, setActiveTab] = useState('scriptures');
 
   const tabItems = [
@@ -37,7 +38,7 @@ const AdminPage = ({ onBackToHome }) => {
       label: (
         <span>
           <QuestionCircleOutlined />
-          問答管理
+          答問管理
         </span>
       ),
       children: (
@@ -49,13 +50,22 @@ const AdminPage = ({ onBackToHome }) => {
   return (
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
       <Card className="no-hover-effect" style={{ marginBottom: '24px' }}>
-        <Button 
-          icon={<ArrowLeftOutlined />} 
-          onClick={onBackToHome}
-          style={{ marginBottom: '16px' }}
-        >
-          返回首頁
-        </Button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+          <Button 
+            icon={<ArrowLeftOutlined />} 
+            onClick={onBackToHome}
+          >
+            返回首頁
+          </Button>
+          <Button 
+            type="default"
+            danger
+            icon={<LogoutOutlined />} 
+            onClick={onLogout}
+          >
+            登出
+          </Button>
+        </div>
         <Title level={2} style={{ margin: 0, color: '#722ed1' }}>
           <DatabaseOutlined style={{ marginRight: '8px' }} />
           管理員後台

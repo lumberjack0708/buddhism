@@ -63,32 +63,6 @@ npm start
 2. 根據需要修改數據庫用戶名和密碼
 3. 確保 Apache 的 mod_rewrite 模組已啟用
 
-### 4. 初始化數據
-系統首次運行時會自動從 `public/data/` 載入預設數據。
-
-## API 端點
-
-### 典籍相關
-- `GET /api/scriptures` - 取得所有典籍
-- `GET /api/scriptures/{id}` - 取得特定典籍
-- `GET /api/scriptures/{id}/chapters` - 取得典籍章節
-- `GET /api/scriptures/{scripture_id}/chapters/{chapter_id}` - 取得章節詳情
-- `POST /api/scriptures` - 新增典籍
-- `PUT /api/scriptures/{id}` - 更新典籍
-- `DELETE /api/scriptures/{id}` - 刪除典籍
-
-### 問答相關
-- `GET /api/qa` - 取得問答列表
-- `GET /api/qa?category={category}` - 按分類篩選
-- `GET /api/qa?search={keyword}` - 搜尋問答
-- `GET /api/qa/categories` - 取得所有分類
-- `POST /api/qa` - 新增問答
-- `PUT /api/qa/{id}` - 更新問答
-- `DELETE /api/qa/{id}` - 刪除問答
-
-### 搜尋功能
-- `GET /api/search?keyword={keyword}&type={type}` - 搜尋內容
-
 
 
 ## 主要功能

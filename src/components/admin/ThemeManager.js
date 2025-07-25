@@ -21,7 +21,8 @@ import {
   DeleteOutlined,
   VideoCameraOutlined,
   FileTextOutlined,
-  BulbOutlined
+  BulbOutlined,
+  ReadOutlined
 } from '@ant-design/icons';
 /* global Qs */
 import Request from '../../utils/Request';
@@ -231,7 +232,8 @@ const ThemeManager = ({
                     {/* 經文內容 */}
                     {theme.transcript && (
                       <div style={{ marginBottom: '12px' }}>
-                        <Title level={5} style={{ margin: '0 0 4px 0', color: '#fa8c16' }}>
+                        <Title level={5} style={{ margin: '0 0 4px 0', color: '#52c41a' }}>
+                          <ReadOutlined style={{ marginRight: '4px' }} />
                           經文內容
                         </Title>
                         <Paragraph 
@@ -247,6 +249,29 @@ const ThemeManager = ({
                           }}
                         >
                           {theme.transcript}
+                        </Paragraph>
+                      </div>
+                    )}
+
+                    {/* 逐字稿 */}
+                    {theme.verbatimTranscript && (
+                      <div style={{ marginBottom: '12px' }}>
+                        <Title level={5} style={{ margin: '0 0 4px 0', color: '#eb2f96' }}>
+                          <FileTextOutlined style={{ marginRight: '4px' }} />
+                          逐字稿
+                        </Title>
+                        <Paragraph 
+                          ellipsis={{ rows: 3 }} 
+                          style={{ 
+                            color: '#666', 
+                            fontSize: '12px',
+                            background: '#fff0f6',
+                            padding: '8px',
+                            borderRadius: '4px',
+                            border: '1px solid #ffadd6'
+                          }}
+                        >
+                          {theme.verbatimTranscript}
                         </Paragraph>
                       </div>
                     )}
@@ -361,8 +386,19 @@ const ThemeManager = ({
             rules={[{ required: true, message: '請輸入經文內容' }]}
           >
             <TextArea 
-              rows={8}
+              rows={6}
               placeholder="完整的經文內容，包含原文和解釋"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="verbatimTranscript"
+            label="逐字稿 (選填)"
+            extra="詳細的逐字稿內容，包含完整的講解和對話記錄"
+          >
+            <TextArea 
+              rows={8}
+              placeholder="逐字稿內容，可包含詳細的講解、問答、補充說明等 (選填)"
             />
           </Form.Item>
         </Form>

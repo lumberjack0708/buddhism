@@ -96,7 +96,8 @@ class Chapter {
                     sec.transcript as section_transcript, sec.youtube_id as section_youtube_id,
                     sec.order_index as section_order,
                     t.id as theme_id, t.name as theme_name, t.outline as theme_outline,
-                    t.key_points as theme_key_points, t.transcript as theme_transcript,
+                    t.key_points as theme_key_points, t.transcript as theme_transcript, 
+                    t.verbatim_transcript as theme_verbatim_transcript,
                     t.youtube_id as theme_youtube_id, t.order_index as theme_order
                 FROM chapters c
                 LEFT JOIN scriptures s ON c.scripture_id = s.id

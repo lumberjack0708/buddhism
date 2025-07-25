@@ -8,6 +8,7 @@ import ChapterPage from './components/ChapterPage';
 import QAPage from './components/QAPage';
 import SearchPage from './components/SearchPage';
 import AdminPage from './components/AdminPage';
+import AdminLoginModal from './components/AdminLoginModal';
 import dataManager from './data/dataManager';
 import 'antd/dist/reset.css';
 import './App.css';
@@ -22,6 +23,8 @@ function App() {
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
   const [chapterData, setChapterData] = useState(null);
+  const [isAdminLoginVisible, setIsAdminLoginVisible] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   // 訂閱資料管理器的變化
   useEffect(() => {
@@ -92,6 +95,7 @@ function App() {
                   outline: row.theme_outline || '',
                   keyPoints: row.theme_key_points || '',
                   transcript: row.theme_transcript || '',
+                  verbatimTranscript: row.theme_verbatim_transcript || '',
                   youtubeId: row.theme_youtube_id || '',
                   order_index: row.theme_order || 0
                 });
@@ -151,7 +155,26 @@ function App() {
   };
 
   const handleAdminSelect = () => {
+    if (isAdminLoggedIn) {
+      setCurrentView('admin');
+    } else {
+      setIsAdminLoginVisible(true);
+    }
+  };
+
+  const handleAdminLoginSuccess = () => {
+    setIsAdminLoggedIn(true);
+    setIsAdminLoginVisible(false);
     setCurrentView('admin');
+  };
+
+  const handleAdminLoginCancel = () => {
+    setIsAdminLoginVisible(false);
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminLoggedIn(false);
+    setCurrentView('home');
   };
 
   return (
@@ -201,6 +224,8 @@ function App() {
           ) : currentView === 'admin' ? (
             <AdminPage
               onBackToHome={handleBackToHome}
+              onLogout={handleAdminLogout}
+              isLoggedIn={isAdminLoggedIn}
             />
           ) : null}
           
@@ -208,7 +233,7 @@ function App() {
           {currentView !== 'admin' && (
             <FloatButton
               icon={<SettingOutlined />}
-              tooltip="管理員後台"
+              tooltip={isAdminLoggedIn ? "管理員後台" : "管理員登入"}
               onClick={handleAdminSelect}
               style={{
                 right: 24,
@@ -216,6 +241,13 @@ function App() {
               }}
             />
           )}
+
+          {/* 管理員登入模態視窗 */}
+          <AdminLoginModal
+            visible={isAdminLoginVisible}
+            onCancel={handleAdminLoginCancel}
+            onLoginSuccess={handleAdminLoginSuccess}
+          />
         </Content>
       </Layout>
     </ConfigProvider>

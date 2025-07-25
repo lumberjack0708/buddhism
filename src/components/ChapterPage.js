@@ -229,7 +229,7 @@ const ChapterPage = ({
                     }} />
 
                     {/* 4. 經文內容 */}
-                    <div>
+                    <div style={{ marginBottom: '32px' }}>
                       <Title level={4} style={{ color: '#52c41a', marginBottom: '16px' }}>
                         <ReadOutlined style={{ marginRight: '8px' }} />
                         經文內容
@@ -249,6 +249,40 @@ const ChapterPage = ({
                         </div>
                       </Card>
                     </div>
+
+                    {/* 分隔線 */}
+                    <div style={{ 
+                      height: '1px', 
+                      backgroundColor: '#e8e8e8',
+                      margin: '24px 0' 
+                    }} />
+
+                    {/* 5. 逐字稿 */}
+                    <div>
+                      <Title level={4} style={{ color: '#eb2f96', marginBottom: '16px' }}>
+                        <FileTextOutlined style={{ marginRight: '8px' }} />
+                        逐字稿
+                      </Title>
+                      <Card className="no-hover-effect" size="small" style={{ backgroundColor: '#fff0f6', border: '1px solid #ffadd6' }}>
+                        <div style={{ 
+                          fontSize: '16px', 
+                          lineHeight: '1.8',
+                          color: '#333'
+                        }}>
+                          {theme.verbatimTranscript ? (
+                            theme.verbatimTranscript.split('\n').map((line, index, array) => (
+                              <div key={index} style={{ marginBottom: index === array.length - 1 ? 0 : '8px' }}>
+                                {line || '\u00A0'}
+                              </div>
+                            ))
+                          ) : (
+                            <div style={{ color: '#999', fontStyle: 'italic' }}>
+                              尚未提供逐字稿內容
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    </div>
                   </div>
                 </Panel>
               ))}
@@ -264,8 +298,8 @@ const ChapterPage = ({
               學習小貼士
             </Title>
             <Paragraph style={{ margin: 0, color: '#52c41a' }}>
-              建議先觀看教學影片，再參考章節綱要理解重點，最後對照經文內容深入學習。
-              每個主題都可以獨立折疊，方便您按需學習。
+              建議按順序學習：先觀看教學影片，再參考主題綱要理解架構，透過重點掌握核心要義，
+              對照經文內容深入學習，最後查看逐字稿補充細節。每個主題都可以獨立折疊，方便您按需學習。
             </Paragraph>
           </Card>
         </Col>

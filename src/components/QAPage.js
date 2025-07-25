@@ -191,7 +191,7 @@ const QAPage = ({ onBackToHome }) => {
             </Button>
             <Title level={2} style={{ margin: 0, color: '#722ed1' }}>
               <QuestionCircleOutlined style={{ marginRight: '8px' }} />
-              佛法問答集
+              佛法答問集
             </Title>
             <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
               常見的佛法疑問與詳細解答，幫助您深入理解佛法精義
@@ -335,7 +335,7 @@ const QAPage = ({ onBackToHome }) => {
         <Col span={24}>
           <Card className="no-hover-effect" style={{ backgroundColor: '#e6f4ff', border: '1px solid #91caff' }}>
             <Title level={5} style={{ color: '#0958d9', margin: '0 0 8px 0' }}>
-              💡 使用說明
+              使用說明
             </Title>
             <Paragraph style={{ margin: 0, color: '#1677ff' }}>
               • 您可以透過類別篩選來查看特定主題的問答<br/>

@@ -89,6 +89,7 @@ class ThemeController extends Controller {
             'outline' => isset($_POST['outline']) ? $_POST['outline'] : '',
             'key_points' => isset($_POST['key_points']) ? $_POST['key_points'] : '',
             'transcript' => isset($_POST['transcript']) ? $_POST['transcript'] : '',
+            'verbatim_transcript' => isset($_POST['verbatim_transcript']) ? $_POST['verbatim_transcript'] : '',
             'youtube_id' => isset($_POST['youtube_id']) ? $_POST['youtube_id'] : '',
             'order_index' => isset($_POST['order_index']) && is_numeric($_POST['order_index']) 
                 ? (int)$_POST['order_index'] 
@@ -138,6 +139,7 @@ class ThemeController extends Controller {
             'outline' => isset($_POST['outline']) ? $_POST['outline'] : '',
             'key_points' => isset($_POST['key_points']) ? $_POST['key_points'] : '',
             'transcript' => isset($_POST['transcript']) ? $_POST['transcript'] : '',
+            'verbatim_transcript' => isset($_POST['verbatim_transcript']) ? $_POST['verbatim_transcript'] : '',
             'youtube_id' => isset($_POST['youtube_id']) ? $_POST['youtube_id'] : '',
             'order_index' => isset($_POST['order_index']) && is_numeric($_POST['order_index']) 
                 ? (int)$_POST['order_index'] 

@@ -265,7 +265,7 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
                     e.target.style.color = '#666';
                   }}
                 >
-                  佛法問答集
+                  佛法答問集
                   <div style={{ fontSize: '11px', color: '#999' }}>
                     常見疑問解答
                   </div>

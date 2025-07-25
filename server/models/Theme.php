@@ -37,16 +37,16 @@ class Theme {
                 LEFT JOIN sections sec ON t.section_id = sec.id 
                 LEFT JOIN chapters c ON sec.chapter_id = c.id 
                 LEFT JOIN scriptures s ON c.scripture_id = s.id 
-                WHERE t.name LIKE ? OR t.outline LIKE ? OR t.transcript LIKE ?
+                WHERE t.name LIKE ? OR t.outline LIKE ? OR t.transcript LIKE ? OR t.verbatim_transcript LIKE ?
                 ORDER BY s.order_index ASC, c.order_index ASC, sec.order_index ASC, t.order_index ASC";
         $searchTerm = '%' . $keyword . '%';
-        return DB::select($sql, array($searchTerm, $searchTerm, $searchTerm));
+        return DB::select($sql, array($searchTerm, $searchTerm, $searchTerm, $searchTerm));
     }
     
     // 新增主題
     public function create($data) {
-        $sql = "INSERT INTO themes (id, section_id, name, outline, key_points, transcript, youtube_id, order_index) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO themes (id, section_id, name, outline, key_points, transcript, verbatim_transcript, youtube_id, order_index) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $args = array(
             $data['id'],
             $data['section_id'],
@@ -54,6 +54,7 @@ class Theme {
             $data['outline'],
             $data['key_points'],
             $data['transcript'],
+            $data['verbatim_transcript'],
             $data['youtube_id'],
             $data['order_index']
         );
@@ -62,13 +63,14 @@ class Theme {
     
     // 更新主題
     public function update($id, $data) {
-        $sql = "UPDATE themes SET section_id = ?, name = ?, outline = ?, key_points = ?, transcript = ?, youtube_id = ?, order_index = ? WHERE id = ?";
+        $sql = "UPDATE themes SET section_id = ?, name = ?, outline = ?, key_points = ?, transcript = ?, verbatim_transcript = ?, youtube_id = ?, order_index = ? WHERE id = ?";
         $args = array(
             $data['section_id'],
             $data['name'],
             $data['outline'],
             $data['key_points'],
             $data['transcript'],
+            $data['verbatim_transcript'],
             $data['youtube_id'],
             $data['order_index'],
             $id
