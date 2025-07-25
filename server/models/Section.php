@@ -42,7 +42,7 @@ class Section {
                        LEFT JOIN scriptures s ON c.scripture_id = s.id 
                        WHERE sec.title LIKE ? OR sec.theme LIKE ? OR sec.outline LIKE ? OR sec.transcript LIKE ?";
         
-        // 搜尋主題內容（逐字稿）
+        // 搜尋主題內容
         $themeSql = "SELECT sec.id, sec.chapter_id, sec.title, t.name as theme, t.outline, t.key_points, t.transcript, t.verbatim_transcript, t.youtube_id, sec.order_index,
                             c.name as chapter_name, 
                             s.id as scripture_id, s.name as scripture_name,
