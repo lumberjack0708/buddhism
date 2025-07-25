@@ -2,10 +2,6 @@
 import Request from './Request';
 import { getApiUrl } from '../config';
 
-/**
- * API 管理器 - 使用 axios 和 qs 來呼叫後端 API
- * 參考 example 專案的實現方式
- */
 class ApiManager {
   constructor() {
     this.listeners = [];
