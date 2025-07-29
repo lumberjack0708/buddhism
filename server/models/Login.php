@@ -67,17 +67,17 @@ class Login {
         }
     }
     
-    public function updatePassword($userId, $newPassword) {
+    public function updatePassword($username, $newPassword) {
         // 使用 Argon2 雜湊新密碼
         $passwordHash = password_hash($newPassword, PASSWORD_ARGON2ID, [
             'memory_cost' => 65536,    // 64MB
             'time_cost' => 4,          // 4 iterations
             'threads' => 3             // 3 threads
         ]);
-        
-        // 更新密碼
-        $sql = "UPDATE users SET PasswordHash = ? WHERE UserId = ?";
-        $result = DB::update($sql, array($passwordHash, $userId));
+
+        // 依帳號更新密碼
+        $sql = "UPDATE users SET PasswordHash = ? WHERE Username = ?";
+        $result = DB::update($sql, array($passwordHash, $username));
         
         if ($result['status'] === 200 || $result['status'] === 204) {
             return array('status' => 200, 'message' => '密碼更新成功');

@@ -18,8 +18,8 @@ class LoginController extends Controller {
     }
     
     public function updatePassword() {
-        $data = $this->getPostData(['userId', 'newPassword']);
-        return $this->model->updatePassword($data['userId'], $data['newPassword']);
+        $data = $this->getPostData(['username', 'newPassword']);
+        return $this->model->updatePassword($data['username'], $data['newPassword']);
     }
 }
 
