@@ -271,7 +271,7 @@ const QAPage = ({ onBackToHome }) => {
                           <Tag color="purple" style={{ marginRight: '8px' }}>
                             {qa.category}
                           </Tag>
-                          <Text strong style={{ fontSize: '16px' }}>
+                          <Text strong style={{ fontSize: '16px', color: '#ffffff' }}>
                             {qa.question}
                           </Text>
                         </div>
@@ -299,7 +299,7 @@ const QAPage = ({ onBackToHome }) => {
                       borderRadius: '0 0 8px 8px'
                     }}>
                       <Title level={5} style={{ color: '#722ed1', marginBottom: '12px' }}>
-                        📝 詳細解答：
+                        詳細解答：
                       </Title>
                       <div style={{ 
                         fontSize: '16px', 
