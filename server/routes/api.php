@@ -54,4 +54,11 @@ $router->register('qa_create', 'QAController', 'create');
 $router->register('qa_update', 'QAController', 'update');
 $router->register('qa_delete', 'QAController', 'delete');
 
+// 登入相關路由
+$router->register('login', 'LoginController', 'login');
+
+// 修改相關路由
+$router->register('createUser', 'LoginController', 'createUser');
+$router->register('updatePassword', 'LoginController', 'updatePassword');
+
 ?> 
