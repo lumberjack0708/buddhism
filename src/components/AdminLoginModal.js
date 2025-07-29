@@ -8,9 +8,11 @@ const { Title } = Typography;
 const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = async (values) => {
     setLoading(true);
+    setErrorMessage(''); // 清除之前的錯誤訊息
     
     try {
       const { username, password } = values;
@@ -20,13 +22,21 @@ const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
       if (result.success) {
         message.success(result.message || '登入成功！');
         form.resetFields();
+        setErrorMessage('');
         onLoginSuccess(result.data); // 傳遞用戶資料給父組件
       } else {
-        message.error(result.message || '登入失敗，請檢查帳號密碼');
+        // 檢查是否為密碼錯誤
+        if (result.message && result.message.includes('密碼錯誤')) {
+          setErrorMessage('密碼錯誤，請檢查帳號密碼');
+        } else if (result.message && result.message.includes('用戶名或密碼錯誤')) {
+          setErrorMessage('用戶名或密碼錯誤，請檢查帳號密碼');
+        } else {
+          setErrorMessage(result.message || '登入失敗，請檢查帳號密碼');
+        }
       }
     } catch (error) {
       console.error('登入過程發生錯誤:', error);
-      message.error('登入過程發生錯誤，請稍後再試');
+      setErrorMessage('登入過程發生錯誤，請稍後再試');
     } finally {
       setLoading(false);
     }
@@ -34,6 +44,7 @@ const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
 
   const handleCancel = () => {
     form.resetFields();
+    setErrorMessage(''); // 清除錯誤訊息
     onCancel();
   };
 
@@ -109,6 +120,21 @@ const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
             </Button>
           </Form.Item>
         </Form>
+
+        {/* 錯誤訊息顯示區域 */}
+          {errorMessage && (
+            <div style={{ 
+              color: '#ff4d4f', 
+              fontSize: '16px', 
+              textAlign: 'center', 
+              marginBottom: '0px',
+              padding: '0px',
+              fontWeight: 'bold',
+              marginTop: '10px'
+            }}>
+              {errorMessage}
+            </div>
+          )}
       </div>
     </Modal>
   );
