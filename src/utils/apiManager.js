@@ -389,6 +389,35 @@ class ApiManager {
   isDataLoading() {
     return this.isLoading;
   }
+
+  // 管理員登入
+  async adminLogin(username, password) {
+    try {
+      const response = await Request().post(
+        getApiUrl('login'),
+        Qs.stringify({ username, password })
+      );
+      
+      if (response.data.status === 200) {
+        return {
+          success: true,
+          data: response.data.result,
+          message: response.data.message
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || '登入失敗'
+        };
+      }
+    } catch (error) {
+      console.error('登入請求失敗:', error);
+      return {
+        success: false,
+        message: '網路連線錯誤，請稍後再試'
+      };
+    }
+  }
 }
 
 // 創建單例

@@ -27,19 +27,7 @@ class Login {
                 )
             );
         } else {
-            // 為調試目的，在開發環境中提供更多信息
-            $debugInfo = array(
-                'passwordLength' => strlen($password),
-                'hashLength' => strlen($storedHash),
-                'hashPrefix' => substr($storedHash, 0, 20) . '...',
-                'isArgon2' => (strpos($storedHash, '$argon2') === 0)
-            );
-            
-            return array(
-                'status' => 401, 
-                'message' => '用戶名或密碼錯誤',
-                'debug' => $debugInfo  // 在生產環境中應該移除此行
-            );
+            return array('status' => 401, 'message' => '用戶名或密碼錯誤');
         }
     }
     

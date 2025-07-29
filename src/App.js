@@ -162,7 +162,13 @@ function App() {
     }
   };
 
-  const handleAdminLoginSuccess = () => {
+  const handleAdminLoginSuccess = (userData) => {
+    // 可以在這裡儲存用戶資料到狀態或 localStorage
+    if (userData) {
+      console.log('登入用戶資料:', userData);
+      // 未來可以在這裡儲存用戶資訊
+      // localStorage.setItem('adminUser', JSON.stringify(userData));
+    }
     setIsAdminLoggedIn(true);
     setIsAdminLoginVisible(false);
     setCurrentView('admin');

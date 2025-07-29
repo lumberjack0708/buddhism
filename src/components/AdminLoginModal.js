@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, Button, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined, SettingOutlined } from '@ant-design/icons';
+import apiManager from '../utils/apiManager';
 
 const { Title } = Typography;
-
-// 管理員帳密直接寫死哈哈
-const ADMIN_CREDENTIALS = {
-  username: 'ADM1',
-  password: 'test123'
-};
 
 const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
   const [form] = Form.useForm();
@@ -17,21 +12,24 @@ const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
   const handleLogin = async (values) => {
     setLoading(true);
     
-    // 模擬登入處理時間
-    setTimeout(() => {
+    try {
       const { username, password } = values;
       
-      // 驗證帳號密碼
-      if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-        message.success('登入成功！');
-        form.resetFields();
-        onLoginSuccess();
-      } else {
-        message.error('帳號或密碼錯誤，請重新輸入');
-      }
+      const result = await apiManager.adminLogin(username, password);
       
+      if (result.success) {
+        message.success(result.message || '登入成功！');
+        form.resetFields();
+        onLoginSuccess(result.data); // 傳遞用戶資料給父組件
+      } else {
+        message.error(result.message || '登入失敗，請檢查帳號密碼');
+      }
+    } catch (error) {
+      console.error('登入過程發生錯誤:', error);
+      message.error('登入過程發生錯誤，請稍後再試');
+    } finally {
       setLoading(false);
-    }, 100);
+    }
   };
 
   const handleCancel = () => {
@@ -84,7 +82,7 @@ const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
             label="管理員密碼"
             rules={[
               { required: true, message: '請輸入管理員密碼' },
-              { min: 6, message: '密碼至少需要6個字符' }
+              { min: 4, message: '密碼至少需要4個字符' }
             ]}
           >
             <Input.Password

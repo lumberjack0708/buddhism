@@ -57,7 +57,7 @@ $router->register('qa_delete', 'QAController', 'delete');
 // 登入相關路由
 $router->register('login', 'LoginController', 'login');
 
-// 修改相關路由
+// 網站上線之後註解掉
 $router->register('createUser', 'LoginController', 'createUser');
 $router->register('updatePassword', 'LoginController', 'updatePassword');
 
