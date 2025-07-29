@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2025-07-29 10:26:30
+-- 產生時間： 2025-07-29 11:20:19
 -- 伺服器版本： 10.4.32-MariaDB
 -- PHP 版本： 8.2.12
 
@@ -171,7 +171,7 @@ INSERT INTO `themes` (`id`, `section_id`, `name`, `outline`, `key_points`, `tran
 CREATE TABLE `users` (
   `UserId` bigint(20) UNSIGNED NOT NULL,
   `Username` varchar(50) NOT NULL,
-  `PasswordHash` varchar(255) NOT NULL,
+  `PasswordHash` varchar(450) NOT NULL,
   `CreatedAt` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -180,7 +180,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`UserId`, `Username`, `PasswordHash`, `CreatedAt`) VALUES
-(1, 'ADM1', 'test123', '2025-07-29 15:55:25');
+(1, 'ADM1', '$argon2id$v=19$m=65536,t=4,p=3$d0VrMWpDSFlhb2I4c3plYw$L10JckMmbOuJY++JLQsMAGHlx/+2d4I8NYyhxr+uwrY', '2025-07-29 15:55:25'),
+(2, 'ADM2', '$argon2id$v=19$m=65536,t=4,p=3$QWxCbWp0cUk4TTJLLjJaVw$QWJFKC892yKvyhGF03l0IMl0TunGiebyidanNZq08o4', '2025-07-29 16:37:14');
 
 -- --------------------------------------------------------
 
@@ -267,7 +268,7 @@ ALTER TABLE `users`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `users`
 --
 ALTER TABLE `users`
-  MODIFY `UserId` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `UserId` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- 已傾印資料表的限制式
