@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Modal,
   Card,
@@ -41,15 +41,8 @@ const ChapterManager = ({
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [form] = Form.useForm();
 
-  // 載入章節資料
-  useEffect(() => {
-    if (scripture && visible) {
-      loadChapters();
-    }
-  }, [scripture, visible]);
-
   // 載入章節列表
-  const loadChapters = async () => {
+  const loadChapters = useCallback(async () => {
     try {
       const response = await Request().post(
         getApiUrl('chapters_getByScriptureId'),
@@ -67,7 +60,14 @@ const ChapterManager = ({
       message.error('載入章節失敗');
       setChapters([]);
     }
-  };
+  }, [scripture]);
+
+  // 載入章節資料
+  useEffect(() => {
+    if (scripture && visible) {
+      loadChapters();
+    }
+  }, [scripture, visible, loadChapters]);
 
   const showChapterModal = (chapter = null) => {
     setEditingChapter(chapter);
