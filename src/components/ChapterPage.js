@@ -187,7 +187,7 @@ const ChapterPage = ({
                         主題綱要
                       </Title>
                       <Card className="no-hover-effect" size="small" style={{ backgroundColor: '#f9f9f9' }}>
-                        <div style={{ margin: 0, fontSize: '16px', lineHeight: '1.8' }}>
+                        <div style={{ margin: 0, fontSize: '15px', lineHeight: '1.8', color: '#333' }}>
                           {(theme.outline || '').split('\n').map((line, index, array) => (
                             <div key={index} style={{ marginBottom: index === array.length - 1 ? 0 : '8px' }}>
                               {line || '\u00A0'}
@@ -211,7 +211,7 @@ const ChapterPage = ({
                         重點
                       </Title>
                       <Card className="no-hover-effect" size="small" style={{ backgroundColor: '#fff7e6', border: '1px solid #ffd591' }}>
-                        <div style={{ fontSize: '16px', lineHeight: '1.8', color: '#333' }}>
+                        <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#333' }}>
                           {theme.keyPoints?.split('\n').map((point, pointIndex) => (
                             <div key={pointIndex} style={{ marginBottom: '8px' }}>
                               <Text style={{ fontWeight: '500' }}>{point}</Text>
@@ -236,8 +236,8 @@ const ChapterPage = ({
                       </Title>
                       <Card className="no-hover-effect" size="small" style={{ backgroundColor: '#fff9f0' }}>
                         <div style={{ 
-                          fontSize: '16px', 
-                          lineHeight: '2', 
+                          fontSize: '15px', 
+                          lineHeight: '1.8', 
                           fontFamily: 'serif',
                           color: '#333'
                         }}>
@@ -265,7 +265,7 @@ const ChapterPage = ({
                       </Title>
                       <Card className="no-hover-effect" size="small" style={{ backgroundColor: '#fff0f6', border: '1px solid #ffadd6' }}>
                         <div style={{ 
-                          fontSize: '16px', 
+                          fontSize: '15px', 
                           lineHeight: '1.8',
                           color: '#333'
                         }}>

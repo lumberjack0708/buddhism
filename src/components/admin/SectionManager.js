@@ -309,7 +309,7 @@ const SectionManager = ({
         open={visible}
         onCancel={onClose}
         footer={null}
-        width={1200}
+        width={1400}
         style={{ top: 20 }}
       >
         <Row gutter={[16, 16]}>
@@ -335,6 +335,7 @@ const SectionManager = ({
                 sm: 1,
                 md: 2,
                 lg: 3,
+                xl: 4,
               }}
               dataSource={sections}
               renderItem={section => (
@@ -419,7 +420,7 @@ const SectionManager = ({
         open={isSectionModalVisible}
         onCancel={handleSectionModalCancel}
         footer={null}
-        width={1200}
+        width={1400}
         style={{ top: 20 }}
       >
         <Tabs
@@ -581,9 +582,10 @@ const SectionManager = ({
         open={isThemeFormVisible}
         onOk={handleThemeSubmit}
         onCancel={handleThemeFormCancel}
-        width={800}
+        width={1400}
         okText="確定"
         cancelText="取消"
+        centered
       >
         <Form
           form={themeForm}
@@ -634,7 +636,7 @@ const SectionManager = ({
             rules={[{ required: true, message: '請輸入經文內容' }]}
           >
             <TextArea 
-              rows={5}
+              rows={12}
               placeholder="完整的經文內容"
             />
           </Form.Item>
@@ -645,7 +647,7 @@ const SectionManager = ({
             extra="詳細的逐字稿內容，包含完整的講解和對話記錄"
           >
             <TextArea 
-              rows={6}
+              rows={12}
               placeholder="逐字稿內容，可包含詳細的講解、問答、補充說明等 (選填)"
             />
           </Form.Item>
