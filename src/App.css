@@ -38,6 +38,19 @@ body {
   transition: none !important;
 }
 
+/* 移除章節卡片的懸停效果 */
+.no-hover-effect.ant-card:hover {
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.no-hover-effect .ant-card-body:hover {
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
 /* 選擇器增強樣式 */
 .ant-select-selector {
   border-radius: 8px !important;

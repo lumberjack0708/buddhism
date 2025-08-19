@@ -9,15 +9,17 @@ import {
   ArrowLeftOutlined,
   BookOutlined, 
   QuestionCircleOutlined,
+  UserOutlined,
   DatabaseOutlined,
   LogoutOutlined
 } from '@ant-design/icons';
 import ScriptureManager from './admin/ScriptureManager';
 import QAManager from './admin/QAManager';
+import UserManager from './admin/UserManager';
 
 const { Title, Paragraph } = Typography;
 
-const AdminPage = ({ onBackToHome, onLogout, isLoggedIn }) => {
+const AdminPage = ({ onBackToHome, onLogout, isLoggedIn, currentUser }) => {
   const [activeTab, setActiveTab] = useState('scriptures');
 
   const tabItems = [
@@ -43,6 +45,18 @@ const AdminPage = ({ onBackToHome, onLogout, isLoggedIn }) => {
       ),
       children: (
         <QAManager />
+      ),
+    },
+    {
+      key: 'users',
+      label: (
+        <span>
+          <UserOutlined />
+          用戶管理
+        </span>
+      ),
+      children: (
+        <UserManager currentUser={currentUser} />
       ),
     },
   ];

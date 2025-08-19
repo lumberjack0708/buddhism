@@ -308,7 +308,7 @@ const ChapterManager = ({
           <Form.Item
             name="description"
             label="章節描述"
-            rules={[{ required: true, message: '請輸入章節描述' }]}
+            // rules={[{ required: true, message: '請輸入章節描述' }]}
           >
             <TextArea 
               rows={3}

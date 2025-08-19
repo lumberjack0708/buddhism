@@ -9,6 +9,7 @@ import QAPage from './components/QAPage';
 import SearchPage from './components/SearchPage';
 import AdminPage from './components/AdminPage';
 import AdminLoginModal from './components/AdminLoginModal';
+import { NotificationProvider } from './contexts/NotificationContext';
 import dataManager from './data/dataManager';
 import 'antd/dist/reset.css';
 import './App.css';
@@ -25,6 +26,7 @@ function App() {
   const [chapterData, setChapterData] = useState(null);
   const [isAdminLoginVisible, setIsAdminLoginVisible] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   // 訂閱資料管理器的變化
   useEffect(() => {
@@ -36,6 +38,21 @@ function App() {
     });
     return unsubscribe;
   }, [selectedScripture, selectedChapter]);
+
+  // 頁面載入時檢查是否有儲存的用戶資訊
+  useEffect(() => {
+    const savedUser = localStorage.getItem('adminUser');
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        setCurrentUser(userData);
+        setIsAdminLoggedIn(true);
+      } catch (error) {
+        console.error('解析儲存的用戶資訊失敗:', error);
+        localStorage.removeItem('adminUser');
+      }
+    }
+  }, []);
 
   const loadChapterContent = async (scriptureId, chapterId) => {
     try {
@@ -163,11 +180,11 @@ function App() {
   };
 
   const handleAdminLoginSuccess = (userData) => {
-    // 可以在這裡儲存用戶資料到狀態或 localStorage
+    // 儲存用戶資料到狀態和 localStorage
     if (userData) {
       console.log('登入用戶資料:', userData);
-      // 未來可以在這裡儲存用戶資訊
-      // localStorage.setItem('adminUser', JSON.stringify(userData));
+      setCurrentUser(userData);
+      localStorage.setItem('adminUser', JSON.stringify(userData));
     }
     setIsAdminLoggedIn(true);
     setIsAdminLoginVisible(false);
@@ -180,6 +197,8 @@ function App() {
 
   const handleAdminLogout = () => {
     setIsAdminLoggedIn(false);
+    setCurrentUser(null);
+    localStorage.removeItem('adminUser');
     setCurrentView('home');
   };
 
@@ -192,8 +211,9 @@ function App() {
         },
       }}
     >
-      <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-        <Content>
+      <NotificationProvider>
+        <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+          <Content>
           {currentView === 'home' ? (
             <HomePage 
               onChapterSelect={handleChapterSelect}
@@ -232,6 +252,7 @@ function App() {
               onBackToHome={handleBackToHome}
               onLogout={handleAdminLogout}
               isLoggedIn={isAdminLoggedIn}
+              currentUser={currentUser}
             />
           ) : null}
           
@@ -254,8 +275,9 @@ function App() {
             onCancel={handleAdminLoginCancel}
             onLoginSuccess={handleAdminLoginSuccess}
           />
-        </Content>
-      </Layout>
+          </Content>
+        </Layout>
+      </NotificationProvider>
     </ConfigProvider>
   );
 }

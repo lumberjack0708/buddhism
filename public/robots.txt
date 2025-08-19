@@ -1,3 +1,15 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# 重要頁面
+Allow: /qa
+Allow: /search
+
+# Sitemap 位置
+Sitemap: https://你的網域名稱.com/sitemap.xml
+
+# 爬取延遲
+Crawl-delay: 1

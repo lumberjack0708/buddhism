@@ -104,8 +104,17 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
             }}
             className="no-hover-effect"
           >
-            <Title level={1} style={{ textAlign: 'center', color: '#722ed1', cursor: 'default', userSelect: 'none' }}>
-              <BookOutlined /> 佛法教學影片網站
+            <Title level={1} style={{ textAlign: 'center', color: '#722ed1', cursor: 'default', userSelect: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img 
+                src="/logo512.png" 
+                alt="六如講堂Logo" 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  marginRight: '10px'
+                }} 
+              />
+              六如講堂
             </Title>
             <Paragraph style={{ textAlign: 'center', fontSize: '16px' }}>
               探索佛法經典，透過影片學習佛陀的智慧教導
@@ -169,7 +178,7 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
                     renderItem={chapter => (
                       <List.Item>
                         <Card
-                          hoverable
+                          hoverable={false}
                           size="small"
                           title={chapter.name}
                           extra={<VideoCameraOutlined style={{ color: '#722ed1' }} />}
@@ -177,8 +186,11 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
                           style={{ 
                             cursor: 'pointer',
                             border: '1px solid #d9d9d9',
-                            transition: 'all 0.3s'
+                            boxShadow: 'none',
+                            transform: 'none',
+                            transition: 'none'
                           }}
+                          className="no-hover-effect"
                           bodyStyle={{ padding: '12px' }}
                         >
                           <Paragraph 
@@ -216,13 +228,28 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
 
         {!selectedScripture && (
           <Col span={24}>
-            <Card style={{ textAlign: 'center', background: '#fafafa' }}>
+            <Card style={{ textAlign: 'center', background: '#fafafa' }} className="scripture-selector-card">
               <BookOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
-              <Title level={4} style={{ color: '#999' }}>
-                請先選擇一部典籍開始學習
+              <Title level={3} style={{ color: '#999' }}>
+              六如講堂
+              </Title>
+              <Title level={5} style={{ color: '#999' }}>
+              「如夢、如幻、如泡、如影、如露、如電」
               </Title>
               <Paragraph style={{ color: '#666' }}>
-                我們提供多部重要的佛法經典，每部經典都有詳細的章節劃分和專業的影片講解
+              六如講堂，名取自《金剛經》那句耳熟能詳的偈語。<br/>
+              課程裡，老師並不急著定義「什麼是佛法」，<br/>
+              也不告訴你「該怎麼修行」。<br/>
+              只是不斷地引導、對話、思辨——<br/>
+              跳脫個人的慣性視角，<br/>
+              鬆開社會化的桎梏，<br/>
+              面對人生的千差萬別，回歸五蘊的如實相對。<br/>
+              我們不求依附，不崇拜明師；<br/>
+              不執語言，不靠感動；<br/>
+              只從一字一句的論述出發，以己身去驗證。<br/>
+              離我慢、柔和忍辱、慈悲喜捨、究竟解脫，<br/>
+              不是口號，而是願意一步步學習，誠實面對自我的生命。<br/>
+              這樣的修行，不華麗，卻真實。<br/>
               </Paragraph>
             </Card>
           </Col>

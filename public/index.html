@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
   <head>
     <!-- 匯入axios和qs -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -10,8 +10,34 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="佛法學習網站 - 提供佛教經典、問答集等學習資源"
+      content="六如講堂 - 如夢如幻如泡如影如露如電，名取自金剛經偈語的佛法平台。不求依附、不崇拜明師，只從一字一句論述出發，以己身驗證。提供佛教經典講解、問答集、影片教學，透過引導對話思辨，回歸五蘊如實相對。"
     />
+    <meta name="keywords" content="佛法,佛教,佛經,金剛經,般若經,心經,六如講堂,佛陀,禪定,正念,慈悲,修行,菩薩,如來,空性,無常,因果,業力,輪迴,解脫,涅槃,八正道,四聖諦,五蘊,十二因緣,佛法概論,佛學,佛教典籍,佛法概論" />
+    <meta name="author" content="六如講堂" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    
+    <!-- Open Graph 標籤 -->
+    <meta property="og:title" content="六如講堂 - 佛法概論平台" />
+    <meta property="og:description" content="六如講堂，名取自金剛經「如夢如幻如泡如影如露如電」偈語。不求依附、不崇拜明師，只從一字一句論述出發，以己身驗證。透過引導對話思辨，回歸五蘊如實相對。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://網域名稱.com" />
+    <meta property="og:image" content="%PUBLIC_URL%/logo512.png" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:site_name" content="六如講堂" />
+    
+    <!-- Twitter Card 標籤 -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="六如講堂 - 佛法概論平台" />
+    <meta name="twitter:description" content="六如講堂，名取自金剛經「如夢如幻如泡如影如露如電」偈語。不求依附、不崇拜明師，透過引導對話思辨佛法。" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/logo512.png" />
+    
+    <!-- 地理定位 -->
+    <meta name="geo.region" content="TW" />
+    <meta name="geo.placename" content="台灣" />
+    
+    <!-- 規範網址 -->
+    <link rel="canonical" href="https://網域名稱.com" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -27,10 +53,85 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>佛法學習網站</title>
+    <title>佛法概論 - 六如講堂</title>
+    
+    <!-- JSON-LD 結構化數據 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalWebsite",
+      "name": "六如講堂",
+      "alternateName": "佛法概論平台",
+      "description": "六如講堂，名取自金剛經「如夢、如幻、如泡、如影、如露、如電」偈語的佛法平台。不求依附、不崇拜明師，只從一字一句的論述出發，以己身去驗證。透過引導、對話、思辨，幫助者跳脫慣性視角，回歸五蘊的如實相對。",
+      "url": "https://網域名稱.com",
+      "logo": "https://網域名稱.com/logo512.png",
+      "image": "https://網域名稱.com/logo512.png",
+      "inLanguage": "zh-TW",
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "佛法者"
+      },
+      "keywords": ["佛法", "佛教", "佛經", "金剛經", "般若經", "心經", "六如講堂", "禪定", "正念", "慈悲", "修行","佛法概論"],
+      "sameAs": [
+        "https://www.youtube.com/channel/UC2mBa42ek3cgM931Jmi_Fjw"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "六如講堂",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://網域名稱.com/logo512.png"
+        }
+      }
+    }
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <h1>六如講堂 - 佛法概論平台</h1>
+      <p>您需要啟用 JavaScript 來運行此佛法應用程式。</p>
+      <h2>關於六如講堂</h2>
+      <p>六如講堂，名取自《金剛經》「如夢、如幻、如泡、如影、如露、如電」的偈語。我們提供專業的佛法資源，包括：</p>
+      <ul>
+        <li>佛教經典講解：金剛經、般若經、心經等</li>
+        <li>佛法問答集：常見疑問解答</li>
+        <li>影片教學：深入淺出的佛法教學</li>
+        <li>經文搜尋：快速查找相關內容</li>
+      </ul>
+      <p>探索佛陀智慧，修習禪定、正念、慈悲，邁向究竟解脫。</p>
+    </noscript>
+    
+    <!-- 為 SEO 添加隱藏的靜態內容 -->
+    <div id="seo-content" style="position: absolute; left: -9999px; top: -9999px;">
+      <h1>六如講堂 - 佛法概論與佛教經典平台</h1>
+      <h2>佛法課程</h2>
+      <p>專業的佛法教學平台，提供金剛經、般若波羅蜜多心經、華嚴經等佛教經典的深入講解。透過影片教學和互動問答，幫助者理解佛陀的智慧教導。</p>
+      
+      <h3>主要內容</h3>
+      <ul>
+        <li>佛法概論：認識佛、法、僧三寶的深層意義</li>
+        <li>般若智慧：空性、無常、因果等核心概念</li>
+        <li>修行指導：禪定、正念、慈悲喜捨的實踐方法</li>
+        <li>經典研讀：金剛經、心經、法華經等重要典籍</li>
+        <li>問答集：解答學佛過程中的常見疑問</li>
+      </ul>
+      
+      <h3>六如的意義</h3>
+      <p>「如夢、如幻、如泡、如影、如露、如電」出自金剛經偈語，提醒我們觀照一切現象的無常本質，不執著於虛妄的相狀，以智慧覺察生命的真實面貌。</p>
+      
+      <h3>六如講堂的教學理念</h3>
+      <p>「如夢、如幻、如泡、如影、如露、如電」——六如講堂，名取自《金剛經》那句耳熟能詳的偈語。</p>
+      <p>課程裡，老師並不急著定義「什麼是佛法」，也不告訴你「該怎麼修行」。只是不斷地引導、對話、思辨——跳脫個人的慣性視角，鬆開社會化的桎梏，面對人生的千差萬別，回歸五蘊的如實相對。</p>
+      <p>我們不求依附，不崇拜明師；不執語言，不靠感動；只從一字一句的論述出發，以己身去驗證。離我慢、柔和忍辱、慈悲喜捨、究竟解脫，不是口號，而是願意一步步，誠實面對自我的生命。</p>
+      <p>這樣的修行，不華麗，卻真實。</p>
+      
+      <h3>特色</h3>
+      <p>本平台秉持六如講堂的教學理念，不求依附權威，不崇拜明師；不執語言文字，不靠感動情緒；只從佛經的一字一句出發，以理性思辨和個人實證來佛法。透過引導、對話、思辨的方式，幫助者跳脫慣性視角，回歸五蘊的如實相對。</p>
+      
+      <h3>佛教相關關鍵詞</h3>
+      <p>佛法、佛教、佛經、佛陀、釋迦牟尼佛、菩薩、如來、阿羅漢、禪定、正念、慈悲、智慧、空性、無常、因果、業力、輪迴、解脫、涅槃、八正道、四聖諦、五蘊、十二因緣、六度波羅蜜、四無量心、三法印、戒定慧、聞思修</p>
+    </div>
+    
     <div id="root"></div>
     <!--
       This HTML file is a template.

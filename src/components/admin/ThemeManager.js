@@ -360,34 +360,31 @@ const ThemeManager = ({
 
           <Form.Item
             name="outline"
-            label="綱要"
-            rules={[{ required: true, message: '請輸入綱要' }]}
+            label="綱要 (選填)"
           >
             <TextArea 
               rows={3}
-              placeholder="簡要說明這個主題的核心要點和架構"
+              placeholder="簡要說明這個主題的核心要點和架構 (選填)"
             />
           </Form.Item>
 
           <Form.Item
             name="keyPoints"
-            label="重點說明"
-            rules={[{ required: true, message: '請輸入重點說明' }]}
+            label="重點說明 (選填)"
           >
             <TextArea 
               rows={5}
-              placeholder="詳細的重點說明，建議用數字編號分隔多個重點，例如：&#10;1. 第一個重點&#10;2. 第二個重點"
+              placeholder="詳細的重點說明，建議用數字編號分隔多個重點 (選填)"
             />
           </Form.Item>
 
           <Form.Item
             name="transcript"
-            label="經文內容"
-            rules={[{ required: true, message: '請輸入經文內容' }]}
+            label="經文內容 (選填)"
           >
             <TextArea 
               rows={6}
-              placeholder="完整的經文內容，包含原文和解釋"
+              placeholder="完整的經文內容，包含原文和解釋 (選填)"
             />
           </Form.Item>
 

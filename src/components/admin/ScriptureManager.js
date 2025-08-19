@@ -369,7 +369,7 @@ const ScriptureManager = () => {
           <Form.Item
             name="description"
             label="典籍描述"
-            rules={[{ required: true, message: '請輸入典籍描述' }]}
+            // rules={[{ required: true, message: '請輸入典籍描述' }]}
           >
             <TextArea 
               rows={3}

@@ -393,9 +393,15 @@ class ApiManager {
   // 管理員登入
   async adminLogin(username, password) {
     try {
+      // 導入安全驗證碼產生器
+      const { generateSecurityCode } = await import('./securityCodeGenerator');
+      
+      // 自動產生安全驗證碼
+      const securityCode = generateSecurityCode();
+      
       const response = await Request().post(
         getApiUrl('login'),
-        Qs.stringify({ username, password })
+        Qs.stringify({ username, password, securityCode })
       );
       
       if (response.data.status === 200) {
@@ -412,6 +418,117 @@ class ApiManager {
       }
     } catch (error) {
       console.error('登入請求失敗:', error);
+      return {
+        success: false,
+        message: '網路連線錯誤，請稍後再試'
+      };
+    }
+  }
+
+  // 新增用戶
+  async createUser(username, password) {
+    try {
+      // 導入安全驗證碼產生器
+      const { generateSecurityCode } = await import('./securityCodeGenerator');
+      
+      // 自動產生安全驗證碼
+      const securityCode = generateSecurityCode();
+      
+      const response = await Request().post(
+        getApiUrl('createUser'),
+        Qs.stringify({ username, password, securityCode })
+      );
+      
+      if (response.data.status === 200) {
+        return {
+          success: true,
+          data: response.data.result,
+          message: response.data.message
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || '新增用戶失敗'
+        };
+      }
+    } catch (error) {
+      console.error('新增用戶請求失敗:', error);
+      return {
+        success: false,
+        message: '網路連線錯誤，請稍後再試'
+      };
+    }
+  }
+
+  // 修改密碼
+  async updatePassword(username, newPassword) {
+    try {
+      // 導入安全驗證碼產生器
+      const { generateSecurityCode } = await import('./securityCodeGenerator');
+      
+      // 自動產生安全驗證碼
+      const securityCode = generateSecurityCode();
+      
+      const response = await Request().post(
+        getApiUrl('updatePassword'),
+        Qs.stringify({ username, newPassword, securityCode })
+      );
+      
+      if (response.data.status === 200) {
+        return {
+          success: true,
+          data: response.data.result,
+          message: response.data.message
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || '修改密碼失敗'
+        };
+      }
+    } catch (error) {
+      console.error('修改密碼請求失敗:', error);
+      return {
+        success: false,
+        message: '網路連線錯誤，請稍後再試'
+      };
+    }
+  }
+
+  // 通過登入獲取安全驗證碼資訊（需要身份驗證）
+  async getSecurityCodeInfoWithAuth(username, password) {
+    try {
+      // 導入安全驗證碼產生器
+      const { generateSecurityCode } = await import('./securityCodeGenerator');
+      
+      // 自動產生安全驗證碼
+      const securityCode = generateSecurityCode();
+      
+      const response = await Request().post(
+        getApiUrl('login'),
+        Qs.stringify({ 
+          username, 
+          password, 
+          securityCode,
+          includeSecurityInfo: 'true'
+        })
+      );
+      
+      if (response.data.status === 200) {
+        return {
+          success: true,
+          data: response.data.result?.security_info || null,
+          message: '成功取得安全驗證碼資訊',
+          user: response.data.result
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || '身份驗證失敗'
+        };
+      }
+    } catch (error) {
+      console.error('取得安全驗證碼請求失敗:', error);
       return {
         success: false,
         message: '網路連線錯誤，請稍後再試'
