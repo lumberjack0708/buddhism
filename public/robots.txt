@@ -9,7 +9,7 @@ Allow: /qa
 Allow: /search
 
 # Sitemap 位置
-Sitemap: https://你的網域名稱.com/sitemap.xml
+Sitemap: https://budharma.tw/sitemap.xml
 
 # 爬取延遲
 Crawl-delay: 1
