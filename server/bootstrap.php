@@ -23,5 +23,3 @@ require_once __DIR__ . '/controllers/LoginController.php';
 
 // 初始化資料庫連線（使用現有的 DB.php 設定）
 require_once __DIR__ . '/DB.php';
-
-?> 

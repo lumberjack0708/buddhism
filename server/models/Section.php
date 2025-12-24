@@ -165,5 +165,3 @@ class Section {
         return 1;
     }
 }
-
-?> 

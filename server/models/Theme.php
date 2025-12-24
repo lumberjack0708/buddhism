@@ -122,5 +122,3 @@ class Theme {
         return 1;
     }
 }
-
-?> 

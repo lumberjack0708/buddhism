@@ -118,5 +118,3 @@ class Chapter {
         return 1;
     }
 }
-
-?> 

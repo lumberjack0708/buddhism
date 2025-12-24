@@ -58,5 +58,3 @@ class Router {
         return $this->routeTable;
     }
 }
-
-?> 

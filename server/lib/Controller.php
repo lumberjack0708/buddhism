@@ -112,5 +112,3 @@ abstract class Controller {
         return null; // 理論上不會到這裡
     }
 }
-
-?> 

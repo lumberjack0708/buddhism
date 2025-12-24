@@ -129,5 +129,3 @@ class QA {
         return 1;
     }
 }
-
-?> 

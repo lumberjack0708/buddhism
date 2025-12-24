@@ -49,5 +49,3 @@ try {
 
 // 回傳 JSON 響應
 echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-?>

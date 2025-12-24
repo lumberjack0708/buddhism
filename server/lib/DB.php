@@ -133,5 +133,3 @@ class DB {
         return $resp;
     }
 }
-
-?> 

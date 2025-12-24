@@ -92,5 +92,3 @@ class Scripture {
         return 1;
     }
 }
-
-?> 
