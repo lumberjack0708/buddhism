@@ -133,7 +133,18 @@ const ChapterPage = ({
             <Title level={2} style={{ margin: 0, color: '#722ed1' }}>
               {currentSection.title}
             </Title>
-            <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
+            
+            {/* 小節簡介 */}
+            {currentSection.theme && (
+              <Paragraph style={{ margin: '8px 0 0 0', color: '#666', whiteSpace: 'pre-wrap' }}>
+                {currentSection.theme}
+              </Paragraph>
+            )}
+            
+            <Paragraph style={{ 
+              margin: '12px 0 0 0', 
+              fontSize: '13px'
+            }}>
               本小節包含 {themes.length} 個學習主題，請依序展開學習
             </Paragraph>
           </Card>

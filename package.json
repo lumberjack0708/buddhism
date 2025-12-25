@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && xcopy /E /I /Y server build\\server",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

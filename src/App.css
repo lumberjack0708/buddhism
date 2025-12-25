@@ -205,16 +205,15 @@ body {
 
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
-  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, #722ed1, #9254de);
-  border-radius: 4px;
+  background: #888;
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, #9254de, #722ed1);
+  background: #555;
 }
 
 /* 搜尋結果高亮樣式 */

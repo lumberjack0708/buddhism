@@ -85,6 +85,7 @@ const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
               prefix={<UserOutlined style={{ color: '#722ed1' }} />}
               placeholder="請輸入管理員帳號"
               size="large"
+              autoComplete="username"
             />
           </Form.Item>
 
@@ -100,6 +101,7 @@ const AdminLoginModal = ({ visible, onCancel, onLoginSuccess }) => {
               prefix={<LockOutlined style={{ color: '#722ed1' }} />}
               placeholder="請輸入管理員密碼"
               size="large"
+              autoComplete="current-password"
             />
           </Form.Item>
 

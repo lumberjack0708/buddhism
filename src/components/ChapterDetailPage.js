@@ -50,7 +50,7 @@ const ChapterDetailPage = ({
             <Title level={2} style={{ margin: 0, color: '#722ed1' }}>
               {chapterData.name}
             </Title>
-            <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
+            <Paragraph style={{ margin: '8px 0 0 0', color: '#666', whiteSpace: 'pre-wrap' }}>
               {chapterData.description}
             </Paragraph>
           </Card>
@@ -106,50 +106,36 @@ const ChapterDetailPage = ({
                     bodyStyle={{ padding: '16px' }}
                   >
                     {/* 小節主題 */}
-                    {(section.themes?.length > 0 || section.theme) && (
+                    {section.themes?.length > 0 && (
                       <div style={{ marginBottom: '12px' }}>
                         <Title level={5} style={{ color: '#fa8c16', margin: '0 0 8px 0' }}>
-                            主題 {section.themes?.length > 0 ? `(${section.themes.length}個)` : '(1個)'}
+                          主題 ({section.themes.length}個)
                         </Title>
-                        {section.themes?.length > 0 ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            {section.themes.slice(0, 2).map((theme, index) => (
-                              <div key={theme.id} style={{ 
-                                backgroundColor: "#FFEEB8",
-                                padding: '6px 10px',
-                                borderRadius: '4px',
-                                border: '1px solid #ffd591',
-                                fontSize: '12px',
-                                fontWeight: '500',
-                                color: '#d46b08'
-                              }}>
-                                {index + 1}. {theme.name}
-                              </div>
-                            ))}
-                            {section.themes.length > 2 && (
-                              <div style={{ 
-                                fontSize: '11px', 
-                                color: '#999',
-                                textAlign: 'center',
-                                padding: '4px'
-                              }}>
-                                +{section.themes.length - 2} 個更多主題...
-                              </div>
-                            )}
-                          </div>
-                        ) : section.theme && (
-                          <div style={{ 
-                            backgroundColor: "#FFEEB8",
-                            padding: '8px 12px',
-                            borderRadius: '6px',
-                            border: '1px solid #ffd591',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            color: '#d46b08'
-                          }}>
-                            {section.theme}
-                          </div>
-                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {section.themes.slice(0, 2).map((theme, index) => (
+                            <div key={theme.id} style={{ 
+                              backgroundColor: "#FFEEB8",
+                              padding: '6px 10px',
+                              borderRadius: '4px',
+                              border: '1px solid #ffd591',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              color: '#d46b08'
+                            }}>
+                              {index + 1}. {theme.name}
+                            </div>
+                          ))}
+                          {section.themes.length > 2 && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: '#999',
+                              textAlign: 'center',
+                              padding: '4px'
+                            }}>
+                              +{section.themes.length - 2} 個更多主題...
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
 

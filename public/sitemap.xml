@@ -6,20 +6,20 @@
     <lastmod>2025-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="zh-tw" href="https://你的網域名稱.com/" />
+    <xhtml:link rel="alternate" hreflang="zh-tw" href="https://budharma.tw/" />
   </url>
   <url>
     <loc>https://budharma.tw/</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="zh-tw" href="https://你的網域名稱.com/qa" />
+    <xhtml:link rel="alternate" hreflang="zh-tw" href="https://budharma.tw/qa" />
   </url>
   <url>
     <loc>https://budharma.tw/</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="zh-tw" href="https://你的網域名稱.com/search" />
+    <xhtml:link rel="alternate" hreflang="zh-tw" href="https://budharma.tw/search" />
   </url>
 </urlset>

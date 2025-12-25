@@ -106,7 +106,7 @@ const HomePage = ({ onChapterSelect, onQASelect, onSearchSelect }) => {
           >
             <Title level={1} style={{ textAlign: 'center', color: '#722ed1', cursor: 'default', userSelect: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img 
-                src="/logo512.png" 
+                src={process.env.PUBLIC_URL + "/logo512.png"} 
                 alt="六如講堂Logo" 
                 style={{ 
                   width: '48px', 
