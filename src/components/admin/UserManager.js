@@ -9,9 +9,7 @@ import {
   Col,
   Space,
   message,
-  Alert,
-  Modal,
-  notification
+  Alert
 } from 'antd';
 import {
   UserOutlined,
@@ -20,7 +18,7 @@ import {
 import apiManager from '../../utils/apiManager';
 import { useNotification } from '../../contexts/NotificationContext';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text } = Typography;
 
 const UserManager = ({ currentUser }) => {
   const [updatePasswordForm] = Form.useForm();
